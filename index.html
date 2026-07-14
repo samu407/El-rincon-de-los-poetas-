@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>el espejo de las almas</title>
+<meta name="description" content="un muro colectivo de poemas anónimos">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg-deep:#0e0e10;
+    --bg-panel:#16161a;
+    --bg-panel-raised:#1c1c21;
+    --ink:#f2ede4;
+    --ink-dim:#a9a6a0;
+    --ink-faint:#6f6c68;
+    --lavender:#c084fc;
+    --lavender-dim:#9a6fd1;
+    --gold:#c9a961;
+    --hairline:rgba(242,237,228,0.08);
+    --shadow-deep: 0 30px 60px -20px rgba(0,0,0,0.6);
+  }
+
+  *{box-sizing:border-box;}
+
+  ::selection{
+    background:var(--lavender-dim);
+    color:var(--bg-deep);
+  }
+
+  html{scroll-behavior:smooth;}
+
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(192,132,252,0.06), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 90% 100%, rgba(201,169,97,0.05), transparent 60%),
+      var(--bg-deep);
+    color:var(--ink);
+    font-family:'EB Garamond', serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+
+  .sans{font-family:'Inter', sans-serif;}
+
+  /* ---------- layout shell ---------- */
+  .shell{
+    max-width:680px;
+    margin:0 auto;
+    padding:0 28px 140px;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    padding:110px 0 70px;
+    text-align:center;
+    opacity:0;
+    animation:riseIn 1.4s cubic-bezier(.19,1,.22,1) forwards;
+  }
+
+  .eyebrow{
+    font-family:'Inter', sans-serif;
+    font-size:11px;
+    letter-spacing:0.32em;
+    text-transform:uppercase;
+    color:var(--gold);
+    opacity:0.75;
+    margin-bottom:22px;
+  }
+
+  h1.title{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:clamp(2.1rem, 6vw, 3.4rem);
+    letter-spacing:0.01em;
+    margin:0 0 18px;
+    line-height:1.15;
+    background:linear-gradient(180deg, var(--ink) 40%, var(--ink-dim));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+
+  .subtitle{
+    font-family:'Inter', sans-serif;
+    font-size:13.5px;
+    color:var(--ink-faint);
+    letter-spacing:0.02em;
+    max-width:380px;
+    margin:0 auto;
+    line-height:1.7;
+  }
+
+  .flourish{
+    margin-top:34px;
+    color:var(--lavender-dim);
+    font-size:14px;
+    letter-spacing:0.5em;
+    opacity:0.6;
+  }
+
+  /* ---------- composer ---------- */
+  .composer{
+    background:var(--bg-panel);
+    border:1px solid var(--hairline);
+    border-radius:18px;
+    padding:38px 34px 30px;
+    box-shadow:var(--shadow-deep);
+    opacity:0;
+    animation:riseIn 1.4s cubic-bezier(.19,1,.22,1) forwards;
+    animation-delay:0.15s;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .composer::before{
+    content:"";
+    position:absolute;
+    top:0; left:0;
+    width:3px; height:100%;
+    background:linear-gradient(180deg, var(--lavender), transparent 85%);
+    opacity:0.5;
+  }
+
+  .field-label{
+    font-family:'Inter', sans-serif;
+    font-size:10.5px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    display:block;
+    margin-bottom:9px;
+  }
+
+  .field{margin-bottom:26px;}
+
+  input[type="text"], textarea{
+    width:100%;
+    background:transparent;
+    border:none;
+    border-bottom:1px solid var(--hairline);
+    color:var(--ink);
+    font-family:'EB Garamond', serif;
+    font-size:17px;
+    padding:8px 2px 12px;
+    outline:none;
+    transition:border-color 0.4s ease;
+    resize:none;
+  }
+
+  input[type="text"]::placeholder, textarea::placeholder{
+    color:var(--ink-faint);
+    font-style:italic;
+    opacity:0.7;
+  }
+
+  input[type="text"]:focus, textarea:focus{
+    border-bottom-color:var(--lavender-dim);
+  }
+
+  textarea{
+    min-height:170px;
+    line-height:1.75;
+    white-space:pre-wrap;
+    border-bottom:1px solid var(--hairline);
+  }
+
+  .row-split{
+    display:flex;
+    gap:26px;
+  }
+  .row-split > div{flex:1;}
+
+  .publish-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-top:8px;
+    flex-wrap:wrap;
+    gap:16px;
+  }
+
+  .hint{
+    font-family:'Inter', sans-serif;
+    font-size:11.5px;
+    color:var(--ink-faint);
+    letter-spacing:0.01em;
+  }
+
+  button.publish{
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    background:transparent;
+    color:var(--lavender);
+    border:1px solid var(--lavender-dim);
+    padding:13px 30px;
+    border-radius:100px;
+    cursor:pointer;
+    transition:all 0.35s ease;
+    position:relative;
+  }
+
+  button.publish:hover{
+    background:var(--lavender);
+    color:var(--bg-deep);
+    box-shadow:0 0 26px rgba(192,132,252,0.35);
+    letter-spacing:0.14em;
+  }
+
+  button.publish:active{transform:scale(0.97);}
+
+  button.publish:disabled{
+    opacity:0.4;
+    cursor:default;
+    pointer-events:none;
+  }
+
+  .error-msg{
+    font-family:'Inter', sans-serif;
+    font-size:12px;
+    color:#e08787;
+    margin-top:10px;
+    min-height:16px;
+    opacity:0;
+    transition:opacity 0.3s ease;
+  }
+  .error-msg.show{opacity:1;}
+
+  /* ---------- divider between composer and wall ---------- */
+  .section-divider{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    margin:78px 0 44px;
+    color:var(--ink-faint);
+  }
+  .section-divider .line{
+    flex:1;
+    height:1px;
+    background:var(--hairline);
+  }
+  .section-divider span.mark{
+    font-family:'Playfair Display', serif;
+    font-style:italic;
+    font-size:14px;
+    color:var(--gold);
+    opacity:0.8;
+    letter-spacing:0.05em;
+  }
+
+  /* ---------- poem wall ---------- */
+  #poemWall{
+    display:flex;
+    flex-direction:column;
+    gap:0;
+  }
+
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--ink-faint);
+    font-family:'Inter', sans-serif;
+    font-size:13px;
+    letter-spacing:0.02em;
+  }
+
+  .poem-card{
+    padding:38px 4px 44px;
+    position:relative;
+    animation:pageIn 0.9s cubic-bezier(.19,1,.22,1) both;
+  }
+
+  .poem-card:not(:last-child){
+    border-bottom:1px solid var(--hairline);
+  }
+
+  .poem-title{
+    font-family:'Playfair Display', serif;
+    font-weight:600;
+    font-size:1.3rem;
+    color:var(--ink);
+    margin:0 0 20px;
+    letter-spacing:0.01em;
+  }
+
+  .poem-content{
+    font-family:'EB Garamond', serif;
+    font-size:18px;
+    line-height:2.05;
+    color:#ded8cd;
+    white-space:pre-wrap;
+    margin:0;
+  }
+
+  .poem-meta{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:26px;
+    font-family:'Inter', sans-serif;
+    font-size:11.5px;
+    color:var(--ink-faint);
+    letter-spacing:0.04em;
+  }
+
+  .poem-meta .author{
+    color:var(--lavender-dim);
+    font-style:italic;
+    font-family:'EB Garamond', serif;
+    font-size:14px;
+  }
+
+  .poem-meta .dot{
+    width:3px; height:3px;
+    border-radius:50%;
+    background:var(--ink-faint);
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    text-align:center;
+    margin-top:90px;
+    font-family:'Inter', sans-serif;
+    font-size:11px;
+    letter-spacing:0.1em;
+    color:var(--ink-faint);
+    opacity:0.6;
+  }
+
+  /* ---------- animations ---------- */
+  @keyframes riseIn{
+    from{opacity:0; transform:translateY(18px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  @keyframes pageIn{
+    from{opacity:0; transform:translateY(14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important;}
+    html{scroll-behavior:auto;}
+  }
+
+  /* ---------- responsive ---------- */
+  @media (max-width:600px){
+    .shell{padding:0 18px 100px;}
+    header{padding:70px 0 50px;}
+    .composer{padding:28px 22px 24px;}
+    .row-split{flex-direction:column; gap:0;}
+    .poem-content{font-size:16.5px; line-height:1.95;}
+  }
+
+  /* focus visibility for accessibility */
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
+    outline:2px solid var(--lavender);
+    outline-offset:3px;
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <header>
+    <div class="eyebrow sans">un muro colectivo · escrito por todos</div>
+    <h1 class="title">el espejo de las almas</h1>
+    <p class="subtitle">cada quien deja aquí lo que no cabe en la garganta. nadie firma con su nombre completo — sólo con lo que quiere ser recordado.</p>
+    <div class="flourish">⁘</div>
+  </header>
+
+  <section class="composer">
+    <div class="field">
+      <label class="field-label sans" for="poemTitle">título <span style="opacity:0.6">(opcional)</span></label>
+      <input type="text" id="poemTitle" placeholder="sin título">
+    </div>
+
+    <div class="field">
+      <label class="field-label sans" for="poemContent">el poema</label>
+      <textarea id="poemContent" placeholder="escribe sin miedo. los saltos de línea se guardan tal como los dejes..."></textarea>
+    </div>
+
+    <div class="row-split">
+      <div class="field">
+        <label class="field-label sans" for="poemAuthor">firma</label>
+        <input type="text" id="poemAuthor" placeholder="anónimo">
+      </div>
+    </div>
+
+    <div class="publish-row">
+      <span class="hint">se guarda para siempre, para quien quiera leerlo</span>
+      <button class="publish sans" id="publishBtn">publicar</button>
+    </div>
+    <div class="error-msg sans" id="errorMsg"></div>
+  </section>
+
+  <div class="section-divider">
+    <div class="line"></div>
+    <span class="mark">el muro</span>
+    <div class="line"></div>
+  </div>
+
+  <main id="poemWall">
+    <div class="empty-state sans">la página está en blanco. sé la primera voz.</div>
+  </main>
+
+  <footer class="sans">hecho de silencios compartidos</footer>
+
+</div>
+
+<script type="module">
+  // ============================================================
+  //  FIREBASE — pega aquí tus credenciales de tu proyecto
+  // ============================================================
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getDatabase,
+    ref,
+    push,
+    onValue,
+    serverTimestamp,
+    query,
+    orderByChild
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAtEyqF78n6gPg72V96B9rYnqWvpiFM1b4",
+    authDomain: "rincon-poetico.firebaseapp.com",
+    databaseURL: "https://rincon-poetico-default-rtdb.firebaseio.com",
+    projectId: "rincon-poetico",
+    storageBucket: "rincon-poetico.firebasestorage.app",
+    messagingSenderId: "480583185650",
+    appId: "1:480583185650:web:7c422fac8bcf255c208c6b",
+    measurementId: "G-0LNDPMGFL7"
+  };
+  // ============================================================
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const poemsRef = ref(db, "poems");
+
+  // ---------- DOM refs ----------
+  const titleInput = document.getElementById("poemTitle");
+  const contentInput = document.getElementById("poemContent");
+  const authorInput = document.getElementById("poemAuthor");
+  const publishBtn = document.getElementById("publishBtn");
+  const errorMsg = document.getElementById("errorMsg");
+  const poemWall = document.getElementById("poemWall");
+
+  function showError(text){
+    errorMsg.textContent = text;
+    errorMsg.classList.add("show");
+    setTimeout(() => errorMsg.classList.remove("show"), 2600);
+  }
+
+  function escapeHtml(str){
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function timeAgo(timestamp){
+    if(!timestamp) return "hace un instante";
+    const diff = Date.now() - timestamp;
+    const mins = Math.floor(diff / 60000);
+    if(mins < 1) return "hace un instante";
+    if(mins < 60) return `hace ${mins} min`;
+    const hrs = Math.floor(mins / 60);
+    if(hrs < 24) return `hace ${hrs} h`;
+    const days = Math.floor(hrs / 24);
+    if(days < 30) return `hace ${days} d`;
+    const months = Math.floor(days / 30);
+    if(months < 12) return `hace ${months} mes(es)`;
+    return `hace ${Math.floor(months / 12)} año(s)`;
+  }
+
+  // ---------- publicar ----------
+  async function publishPoem(){
+    const title = titleInput.value.trim();
+    const content = contentInput.value;
+    const author = authorInput.value.trim();
+
+    if(!content || !content.trim()){
+      showError("el poema no puede estar vacío.");
+      contentInput.focus();
+      return;
+    }
+
+    publishBtn.disabled = true;
+    publishBtn.textContent = "publicando...";
+
+    try{
+      await push(poemsRef, {
+        title: title || "",
+        content: content,
+        author: author || "anónimo",
+        timestamp: Date.now()
+      });
+
+      titleInput.value = "";
+      contentInput.value = "";
+      authorInput.value = "";
+
+    }catch(err){
+      console.error(err);
+      showError("no se pudo publicar. inténtalo de nuevo.");
+    }finally{
+      publishBtn.disabled = false;
+      publishBtn.textContent = "publicar";
+    }
+  }
+
+  publishBtn.addEventListener("click", publishPoem);
+
+  contentInput.addEventListener("keydown", (e) => {
+    if(e.key === "Enter" && (e.metaKey || e.ctrlKey)){
+      publishPoem();
+    }
+  });
+
+  // ---------- escuchar y pintar el muro ----------
+  const poemsQuery = query(poemsRef, orderByChild("timestamp"));
+
+  onValue(poemsQuery, (snapshot) => {
+    const data = snapshot.val();
+
+    if(!data){
+      poemWall.innerHTML = `<div class="empty-state sans">la página está en blanco. sé la primera voz.</div>`;
+      return;
+    }
+
+    const poems = Object.entries(data).map(([id, poem]) => ({ id, ...poem }));
+    poems.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    poemWall.innerHTML = poems.map((poem, i) => `
+      <article class="poem-card" style="animation-delay:${Math.min(i, 8) * 0.06}s">
+        ${poem.title ? `<h2 class="poem-title">${escapeHtml(poem.title)}</h2>` : ""}
+        <p class="poem-content">${escapeHtml(poem.content)}</p>
+        <div class="poem-meta">
+          <span class="author">${escapeHtml(poem.author || "anónimo")}</span>
+          <span class="dot"></span>
+          <span>${timeAgo(poem.timestamp)}</span>
+        </div>
+      </article>
+    `).join("");
+  }, (error) => {
+    console.error("Error al leer poemas:", error);
+    poemWall.innerHTML = `<div class="empty-state sans">no se pudieron cargar los poemas. revisa tu configuración de Firebase.</div>`;
+  });
+
+</script>
+
+</body>
+</html>
