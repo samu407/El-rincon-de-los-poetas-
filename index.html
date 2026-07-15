@@ -355,7 +355,52 @@
 
   footer.page-footer{
     text-align:center; margin-top:90px; font-family:'Inter', sans-serif; font-size:11px;
-    letter-spacing:0.1em; color:var(--ink-faint); opacity:0.6;
+    letter-spacing:0.1em; color:var(--ink-faint); opacity:0.6; line-height:2.4;
+  }
+  .footer-link{
+    background:none; border:none; color:var(--ink-faint); font-family:'Inter', sans-serif;
+    font-size:11px; letter-spacing:0.1em; cursor:pointer; text-decoration:underline;
+    text-underline-offset:3px; opacity:0.8; transition:color 0.25s ease;
+  }
+  .footer-link:hover{ color:var(--lavender); }
+
+  .uid-box{
+    margin-top:26px; font-size:10.5px; color:var(--ink-faint); opacity:0.55;
+    display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap;
+  }
+  .uid-box code{
+    background:var(--bg-panel-raised); padding:2px 8px; border-radius:6px; color:var(--ink-dim);
+    font-family:monospace; font-size:10px;
+  }
+  .uid-box button{
+    background:none; border:1px solid var(--hairline); color:var(--ink-faint);
+    font-family:'Inter', sans-serif; font-size:9.5px; padding:3px 9px; border-radius:100px;
+    cursor:pointer; transition:all 0.25s ease;
+  }
+  .uid-box button:hover{ border-color:var(--lavender-dim); color:var(--lavender); }
+
+  .about-modal{ text-align:center; max-width:420px; }
+  .about-avatar{
+    font-size:2rem; color:var(--gold); margin-bottom:14px;
+    animation:spinGlow 4s ease-in-out infinite;
+  }
+  .about-text{
+    font-size:14px; line-height:1.8; color:var(--ink-dim); text-align:left; margin:0 0 16px;
+  }
+
+  /* ---------- tarjeta destacada del creador ---------- */
+  .poem-card.creator-card{
+    background:linear-gradient(180deg, rgba(201,169,97,0.05), transparent 40%);
+    border:1px solid rgba(201,169,97,0.25);
+    border-radius:16px;
+    padding:34px 24px 40px;
+    box-shadow:0 0 30px rgba(201,169,97,0.06);
+  }
+  .poem-card.creator-card:not(:last-child){ border-bottom:1px solid rgba(201,169,97,0.25); }
+  .creator-tag{
+    font-family:'Inter', sans-serif; font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--bg-deep); background:linear-gradient(120deg, var(--gold), #e8cf9a);
+    padding:2px 9px; border-radius:100px; white-space:nowrap;
   }
 
   /* ================= PROFILE VIEWS ================= */
@@ -564,7 +609,10 @@
       <div class="empty-state sans">la página está en blanco. sé la primera voz.</div>
     </main>
 
-    <footer class="page-footer sans">hecho de silencios compartidos</footer>
+    <footer class="page-footer sans">
+      hecho de silencios compartidos<br>
+      <button class="footer-link" id="btnAboutCreator">sobre el creador de este espejo</button>
+    </footer>
   </div>
 
   <!-- ============ VIEW: MI PERFIL ============ -->
@@ -583,6 +631,10 @@
       <div class="xp-caption sans" id="myXpCaption"></div>
       <div class="profile-actions">
         <button class="link-btn" id="btnLogout">cerrar sesión</button>
+      </div>
+      <div class="uid-box sans" id="myUidBox">
+        tu uid: <code id="myUidText"></code>
+        <button id="btnCopyUid" title="copiar">copiar</button>
       </div>
     </div>
     <div class="section-divider"><div class="line"></div><span class="mark">mis poemas</span><div class="line"></div></div>
@@ -650,6 +702,24 @@
   </div>
 </div>
 
+<!-- ============ MODAL: SOBRE LA CREADORA ============ -->
+<div class="modal-overlay" id="aboutModal">
+  <div class="modal about-modal">
+    <button class="modal-close" id="aboutModalClose">&times;</button>
+    <div class="about-avatar">✦</div>
+    <h3 class="modal-title">quién teje este espejo</h3>
+    <p class="about-text sans">
+      <!-- Reemplaza este texto con tu propia biografía o dedicatoria -->
+      hola, soy la persona detrás de "el espejo de las almas". construí este rincón
+      para que la poesía tuviera un lugar sin ruido, sin likes que midan el alma —
+      solo versos, honestidad y quien quiera leerlos.
+    </p>
+    <p class="about-text sans">
+      si escribes algo aquí, ya formas parte de esta comunidad. gracias por dejar tu voz.
+    </p>
+  </div>
+</div>
+
 <script type="module">
   // ============================================================
   //  FIREBASE — tus credenciales
@@ -680,6 +750,14 @@
   const db = getDatabase(app);
   const auth = getAuth(app);
   const googleProvider = new GoogleAuthProvider();
+
+  // ------------------------------------------------------------
+  // CORREO DEL CREADOR — escribe aquí el correo con el que vas a
+  // iniciar sesión (Google o correo/contraseña). En cuanto entres
+  // con ese correo, tus poemas se mostrarán con el distintivo
+  // dorado de creador — no necesitas saber tu UID de antemano.
+  // ------------------------------------------------------------
+  const CREATOR_EMAIL = "titosamuelgarces@gmail.com";
 
   const poemsRef = ref(db, "poems");
   const usersRef = ref(db, "users");
@@ -776,6 +854,11 @@
 
   document.getElementById("navLogo").addEventListener("click", () => showView("wall"));
 
+  const aboutModal = document.getElementById("aboutModal");
+  document.getElementById("btnAboutCreator").addEventListener("click", () => aboutModal.classList.add("show"));
+  document.getElementById("aboutModalClose").addEventListener("click", () => aboutModal.classList.remove("show"));
+  aboutModal.addEventListener("click", (e) => { if(e.target === aboutModal) aboutModal.classList.remove("show"); });
+
   // ============================================================
   //  MODAL DE LOGIN
   // ============================================================
@@ -803,8 +886,46 @@
   });
 
   function showAuthError(msg){
+    if(!msg) return;
     authError.textContent = msg;
     authError.classList.add("show");
+  }
+
+  // Traduce los códigos de error de Firebase Auth a mensajes claros.
+  // Revisa la consola del navegador (F12) para ver el código exacto también.
+  function mapAuthError(err){
+    const code = (err && err.code) || "";
+    console.error("Firebase auth error:", code, err && err.message);
+    switch(code){
+      case "auth/email-already-in-use":
+        return "ese correo ya tiene una cuenta creada. intenta iniciar sesión en vez de crear una nueva.";
+      case "auth/invalid-email":
+        return "ese correo no tiene un formato válido.";
+      case "auth/weak-password":
+        return "la contraseña debe tener al menos 6 caracteres.";
+      case "auth/missing-password":
+        return "escribe una contraseña.";
+      case "auth/wrong-password":
+      case "auth/invalid-credential":
+        return "correo o contraseña incorrectos.";
+      case "auth/user-not-found":
+        return "no existe ninguna cuenta con ese correo. prueba a crearla.";
+      case "auth/too-many-requests":
+        return "demasiados intentos seguidos. espera un momento y vuelve a intentarlo.";
+      case "auth/operation-not-allowed":
+        return "el inicio de sesión por correo/contraseña no está activado en tu proyecto de Firebase. ve a Authentication → Sign-in method y actívalo.";
+      case "auth/unauthorized-domain":
+        return "este dominio no está autorizado en Firebase. ve a Authentication → Settings → Authorized domains y agrega el dominio desde el que estás abriendo la página (incluyendo 'localhost' si pruebas en tu computador).";
+      case "auth/popup-blocked":
+        return "el navegador bloqueó la ventana emergente de google. permite pop-ups para este sitio e inténtalo de nuevo.";
+      case "auth/popup-closed-by-user":
+      case "auth/cancelled-popup-request":
+        return ""; // el usuario cerró la ventana, no es un error real
+      case "auth/network-request-failed":
+        return "hubo un problema de conexión. revisa tu internet e inténtalo de nuevo.";
+      default:
+        return `no se pudo completar (${code || (err && err.message) || "error desconocido"}).`;
+    }
   }
 
   document.getElementById("btnGoogle").addEventListener("click", async () => {
@@ -812,8 +933,7 @@
       await signInWithPopup(auth, googleProvider);
       closeLoginModal();
     }catch(err){
-      console.error(err);
-      showAuthError("no se pudo iniciar sesión con google.");
+      showAuthError(mapAuthError(err));
     }
   });
 
@@ -829,8 +949,7 @@
       }
       closeLoginModal();
     }catch(err){
-      console.error(err);
-      showAuthError("no se pudo completar. revisa tus datos.");
+      showAuthError(mapAuthError(err));
     }
   });
 
@@ -881,10 +1000,14 @@
         name: user.displayName || (user.email ? user.email.split("@")[0] : "poeta anónimo"),
         photoURL: user.photoURL || null,
         avatarIcon: avatarIcon,
+        email: user.email || null,
         xp: 0,
         level: 1,
         createdAt: Date.now()
       });
+    }else if(!snap.val().email && user.email){
+      // completa el correo para cuentas creadas antes de esta actualización
+      await update(userRef, { email: user.email });
     }
   }
 
@@ -1035,11 +1158,14 @@
     };
     const authorLevel = levelInfo(authorUser.xp).level;
 
+    const isCreator = !!CREATOR_EMAIL && authorUser.email === CREATOR_EMAIL;
+
     const authorRow = options.hideAuthor ? "" : `
       <div class="poem-author-row" data-action="open-author" data-uid="${poem.authorUid}">
         <div class="avatar-circle" style="width:30px;height:30px;">${avatarInner(authorUser)}</div>
         <span class="name">${escapeHtml(authorUser.name || poem.authorName || "anónimo")}</span>
         <span class="level-badge">nv. ${authorLevel}</span>
+        ${isCreator ? `<span class="creator-tag">✦ creador</span>` : ""}
       </div>
     `;
 
@@ -1063,7 +1189,7 @@
       : `<div class="comment-login-hint">inicia sesión para comentar.</div>`;
 
     return `
-      <article class="poem-card" data-poem-id="${poem.id}">
+      <article class="poem-card ${isCreator ? "creator-card" : ""}" data-poem-id="${poem.id}">
         ${authorRow}
         ${poem.title ? `<h2 class="poem-title">${escapeHtml(poem.title)}</h2>` : ""}
         <p class="poem-content">${escapeHtml(poem.content)}</p>
@@ -1174,6 +1300,7 @@
     document.getElementById("myPoemCount").textContent = count;
     document.getElementById("myXpFill").style.width = progress.percent + "%";
     document.getElementById("myXpCaption").textContent = progress.caption;
+    document.getElementById("myUidText").textContent = currentUser.uid;
 
     document.getElementById("myBadges").innerHTML = getBadges(myUserData, count).map(b =>
       `<span class="badge-chip ${b.gold ? "gold" : ""}">${escapeHtml(b.label)}</span>`
@@ -1190,6 +1317,16 @@
   }
 
   document.getElementById("btnLogout").addEventListener("click", () => signOut(auth));
+
+  document.getElementById("btnCopyUid").addEventListener("click", () => {
+    const uidText = document.getElementById("myUidText").textContent;
+    navigator.clipboard.writeText(uidText).then(() => {
+      const btn = document.getElementById("btnCopyUid");
+      const original = btn.textContent;
+      btn.textContent = "copiado ✓";
+      setTimeout(() => { btn.textContent = original; }, 1800);
+    }).catch(() => {});
+  });
 
   // ============================================================
   //  RENDER: PERFIL PÚBLICO
