@@ -9,7 +9,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
   :root{
@@ -428,7 +427,9 @@
   .badge-chip{
     font-family:'Inter', sans-serif; font-size:10.5px; letter-spacing:0.05em;
     padding:5px 12px; border-radius:100px; border:1px solid var(--hairline); color:var(--ink-dim);
+    display:inline-flex; align-items:center; gap:5px;
   }
+  .badge-chip svg{ width:12px; height:12px; flex-shrink:0; }
   .badge-chip.gold{ color:var(--gold); border-color:rgba(201,169,97,0.3); background:var(--gold-soft); }
 
   .stats-row{
@@ -457,6 +458,34 @@
     cursor:pointer; text-decoration:underline; text-underline-offset:3px; transition:color 0.25s ease;
   }
   .link-btn:hover{ color:var(--rose); }
+
+  /* ---------- foto de perfil / avatar editable ---------- */
+  .avatar-wrap{ position:relative; width:96px; margin:0 auto 20px; }
+  .avatar-wrap .profile-avatar-lg{ margin:0; }
+  .avatar-edit-btn{
+    position:absolute; bottom:-2px; right:-2px; width:32px; height:32px; border-radius:50%;
+    background:var(--bg-panel-raised); border:1px solid var(--hairline); color:var(--lavender);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:all 0.3s ease; box-shadow:0 4px 14px rgba(0,0,0,0.4);
+  }
+  .avatar-edit-btn:hover{ border-color:var(--lavender-dim); background:var(--lavender-soft); }
+  .avatar-edit-btn svg{ width:14px; height:14px; }
+  .avatar-edit-btn.uploading{ opacity:0.55; pointer-events:none; animation:pulseSoft 1.1s ease-in-out infinite; }
+  @keyframes pulseSoft{ 0%,100%{ opacity:0.4; } 50%{ opacity:0.85; } }
+
+  /* ---------- insignias de poeta ---------- */
+  .badge-icons-row{ display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 18px; flex-wrap:wrap; }
+  .badge-icon-mini{
+    width:26px; height:26px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--gold-soft); border:1px solid rgba(201,169,97,0.3); color:var(--gold);
+    cursor:default; transition:transform 0.25s ease;
+  }
+  .badge-icon-mini:hover{ transform:scale(1.12); }
+  .badge-icon-mini svg{ width:13px; height:13px; }
+  .badge-icon-mini.sm{ width:19px; height:19px; }
+  .badge-icon-mini.sm svg{ width:10px; height:10px; }
+  .badge-icons-inline{ display:flex; align-items:center; gap:5px; }
 
   /* ================= LOGIN MODAL ================= */
   .modal-overlay{
@@ -533,6 +562,20 @@
   .levelup-title{
     font-family:'Inter', sans-serif; font-size:13px; color:var(--gold); letter-spacing:0.06em;
   }
+
+  /* ================= BADGE UNLOCK TOAST ================= */
+  .badge-toast{
+    position:fixed; bottom:26px; left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--bg-panel-raised); border:1px solid rgba(201,169,97,0.35);
+    border-radius:100px; padding:12px 22px; display:flex; align-items:center; gap:10px;
+    box-shadow:var(--shadow-deep); z-index:150;
+    opacity:0; visibility:hidden; transition:all 0.45s cubic-bezier(.19,1,.22,1);
+  }
+  .badge-toast.show{ opacity:1; visibility:visible; transform:translateX(-50%) translateY(0); }
+  .badge-toast .badge-icon-mini{ width:28px; height:28px; }
+  .badge-toast .badge-icon-mini svg{ width:14px; height:14px; }
+  .badge-toast-text{ font-family:'Inter', sans-serif; font-size:12px; color:var(--ink-dim); }
+  .badge-toast-text b{ color:var(--gold); font-weight:600; }
 
   /* ---------- animations ---------- */
   @keyframes riseIn{ from{ opacity:0; transform:translateY(18px);} to{ opacity:1; transform:translateY(0);} }
@@ -626,9 +669,17 @@
   <div class="view" id="view-profile">
     <div class="back-link sans" data-nav="wall">‹ volver al muro</div>
     <div class="profile-header">
-      <div class="avatar-circle profile-avatar-lg" id="myAvatar"></div>
+      <div class="avatar-wrap">
+        <div class="avatar-circle profile-avatar-lg" id="myAvatar"></div>
+        <button class="avatar-edit-btn" id="btnChangePhoto" title="cambiar foto de perfil">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.8-2.6A1 1 0 0 1 9.6 5h4.8a1 1 0 0 1 .8.4L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.3"/></svg>
+        </button>
+        <input type="file" id="photoFileInput" accept="image/*" hidden>
+      </div>
       <h2 class="profile-name" id="myName"></h2>
+      <div class="badge-icons-row" id="myBadgeIcons"></div>
       <div class="badge-row" id="myBadges"></div>
+      <div class="error-msg sans" id="photoError"></div>
       <div class="stats-row">
         <div class="stat"><div class="num" id="myLevel">1</div><div class="label sans">nivel</div></div>
         <div class="stat"><div class="num" id="myXp">0</div><div class="label sans">xp</div></div>
@@ -654,6 +705,7 @@
     <div class="profile-header">
       <div class="avatar-circle profile-avatar-lg" id="userAvatar"></div>
       <h2 class="profile-name" id="userName"></h2>
+      <div class="badge-icons-row" id="userBadgeIcons"></div>
       <div class="badge-row" id="userBadges"></div>
       <div class="stats-row">
         <div class="stat"><div class="num" id="userLevel">1</div><div class="label sans">nivel</div></div>
@@ -735,7 +787,11 @@
   </div>
 </div>
 
-
+<!-- ============ BADGE UNLOCK TOAST ============ -->
+<div class="badge-toast" id="badgeToast">
+  <span class="badge-icon-mini" id="badgeToastIcon"></span>
+  <span class="badge-toast-text sans">nueva insignia: <b id="badgeToastLabel"></b></span>
+</div>
 
 
 <script type="module">
@@ -751,6 +807,9 @@
     getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged,
     createUserWithEmailAndPassword, signInWithEmailAndPassword
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getStorage, ref as storageRef, uploadBytes, getDownloadURL
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAtEyqF78n6gPg72V96B9rYnqWvpiFM1b4",
@@ -767,6 +826,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
   const auth = getAuth(app);
+  const storage = getStorage(app);
   const googleProvider = new GoogleAuthProvider();
 
   // ------------------------------------------------------------
@@ -784,6 +844,7 @@
   let currentUser = null;          // objeto de firebase auth
   let myUserData = null;           // datos de /users/{uid}
   let myPreviousLevel = null;      // para detectar subidas de nivel
+  let myUnlockedBadges = new Set(); // claves de insignias ya notificadas esta sesión
   let usersCache = {};             // uid -> datos de usuario
   let poemsCache = {};             // poemId -> poema
   const openComments = new Set();  // poemIds con panel de comentarios abierto
@@ -795,6 +856,22 @@
     book: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5C6 4.3 9 4 12 5v14c-3-1-6-.7-8 .5V5.5Z"/><path d="M20 5.5C18 4.3 15 4 12 5v14c3-1 6-.7 8 .5V5.5Z"/></svg>`
   };
   const AVATAR_KEYS = Object.keys(AVATAR_ICONS);
+
+  // ---------- insignias de poeta ----------
+  const BADGE_ICONS = {
+    broken_heart: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.2s-7.2-4.4-9.5-9C1.2 7.9 2.7 4.3 6.2 4.3c2 0 3.6 1.1 4.5 2.4M12 20.2s7.2-4.4 9.5-9c1.3-3.3-.2-6.9-3.7-6.9-2 0-3.6 1.1-4.5 2.4M11.3 8.6l-1.7 2.7 2.5 1.9-1.5 2.6 2.7 2.1"/></svg>`,
+    quill: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4c-5 0-9 2-11 6-1.3 2.6-2 5.6-2 9l3-3c3-1 6-2 8-4 3-3 4-6 2-8Z"/><path d="M9 15l6-6"/></svg>`,
+    moon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>`,
+    spark: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.3 6.3l2.4 2.4M15.3 15.3l2.4 2.4M6.3 17.7l2.4-2.4M15.3 8.7l2.4-2.4"/></svg>`
+  };
+
+  // orden importa: se evalúan de arriba a abajo
+  const BADGE_DEFS = [
+    { key: "broken_heart", label: "corazón roto",         icon: "broken_heart", test: (u, count, maxLikes) => count >= 1 },
+    { key: "steady_voice", label: "voz constante",        icon: "quill",        test: (u, count, maxLikes) => count >= 5 },
+    { key: "mirror_keeper", label: "guardiana del espejo", icon: "moon",        test: (u, count, maxLikes) => count >= 15 },
+    { key: "inspirer",     label: "inspirador",           icon: "spark",        test: (u, count, maxLikes) => maxLikes >= 50 }
+  ];
 
   // ============================================================
   //  UTILIDADES
@@ -844,17 +921,42 @@
     return icon;
   }
 
-  function getBadges(user, poemCount){
+  function poemCountFor(uid){
+    return Object.values(poemsCache).filter(p => p.authorUid === uid).length;
+  }
+
+  function maxLikesFor(uid){
+    let max = 0;
+    Object.values(poemsCache).forEach(p => {
+      if(p.authorUid !== uid) return;
+      const reactions = p.reactions || {};
+      let likes = 0;
+      Object.values(reactions).forEach(t => { if(t === "like") likes++; });
+      if(likes > max) max = likes;
+    });
+    return max;
+  }
+
+  function unlockedBadgeDefs(user, poemCount, maxLikes){
+    return BADGE_DEFS.filter(b => b.test(user, poemCount, maxLikes));
+  }
+
+  function getBadges(user, poemCount, maxLikes){
     const info = levelInfo(user ? user.xp : 0);
-    const badges = [{ label: info.title, gold: true }];
-    if(poemCount >= 1) badges.push({ label: "primera pluma" });
-    if(poemCount >= 5) badges.push({ label: "voz constante" });
-    if(poemCount >= 15) badges.push({ label: "guardiana del espejo" });
+    const badges = [{ label: info.title, gold: true, icon: "" }];
+    unlockedBadgeDefs(user, poemCount, maxLikes).forEach(b => {
+      badges.push({ label: b.label, icon: BADGE_ICONS[b.icon] });
+    });
     return badges;
   }
 
-  function poemCountFor(uid){
-    return Object.values(poemsCache).filter(p => p.authorUid === uid).length;
+  function renderBadgeIconsInline(uid, size){
+    const count = poemCountFor(uid);
+    const maxLikes = maxLikesFor(uid);
+    const user = usersCache[uid];
+    return unlockedBadgeDefs(user, count, maxLikes).map(b =>
+      `<span class="badge-icon-mini ${size === "sm" ? "sm" : ""}" title="${escapeHtml(b.label)}">${BADGE_ICONS[b.icon]}</span>`
+    ).join("");
   }
 
   // ============================================================
@@ -1046,11 +1148,13 @@
         renderNavAuth();
         renderComposerState();
         renderWall();
+        checkBadgeUnlocks();
         if(document.getElementById("view-profile").classList.contains("active")) renderMyProfile();
       });
     }else{
       myUserData = null;
       myPreviousLevel = null;
+      myUnlockedBadges = new Set();
       renderNavAuth();
       renderComposerState();
       renderWall();
@@ -1074,6 +1178,89 @@
     setTimeout(() => levelUpOverlay.classList.remove("show"), 3400);
   }
   levelUpOverlay.addEventListener("click", () => levelUpOverlay.classList.remove("show"));
+
+  // ============================================================
+  //  INSIGNIAS — DETECCIÓN Y CELEBRACIÓN
+  // ============================================================
+  const badgeToast = document.getElementById("badgeToast");
+  let badgeToastTimer = null;
+
+  function triggerBadgeToast(def){
+    document.getElementById("badgeToastIcon").innerHTML = BADGE_ICONS[def.icon];
+    document.getElementById("badgeToastLabel").textContent = def.label;
+    badgeToast.classList.add("show");
+    clearTimeout(badgeToastTimer);
+    badgeToastTimer = setTimeout(() => badgeToast.classList.remove("show"), 3600);
+  }
+
+  // revisa si el usuario actual desbloqueó nuevas insignias desde la última vez
+  // que se evaluaron sus poemas/likes, y lanza una notificación discreta.
+  function checkBadgeUnlocks(){
+    if(!currentUser || !myUserData) return;
+    const count = poemCountFor(currentUser.uid);
+    const maxLikes = maxLikesFor(currentUser.uid);
+    const unlocked = unlockedBadgeDefs(myUserData, count, maxLikes);
+    unlocked.forEach(def => {
+      if(!myUnlockedBadges.has(def.key)){
+        const isFirstEvaluation = myUnlockedBadges.size === 0 && !sessionStorageSafeHasSeen(def.key);
+        myUnlockedBadges.add(def.key);
+        markBadgeSeen(def.key);
+        if(!isFirstEvaluation) triggerBadgeToast(def);
+      }
+    });
+  }
+
+  // pequeña memoria en memoria (no localStorage) para no repetir el toast
+  // de insignias que el usuario ya tenía antes de esta sesión de navegación.
+  const seenBadgesThisLoad = new Set();
+  function sessionStorageSafeHasSeen(key){ return seenBadgesThisLoad.has(`${currentUser.uid}:${key}`); }
+  function markBadgeSeen(key){ seenBadgesThisLoad.add(`${currentUser.uid}:${key}`); }
+
+  // ============================================================
+  //  FOTO DE PERFIL (Firebase Storage)
+  // ============================================================
+  const photoFileInput = document.getElementById("photoFileInput");
+  const btnChangePhoto = document.getElementById("btnChangePhoto");
+  const photoErrorEl = document.getElementById("photoError");
+
+  function showPhotoError(msg){
+    photoErrorEl.textContent = msg;
+    photoErrorEl.classList.add("show");
+    setTimeout(() => photoErrorEl.classList.remove("show"), 3200);
+  }
+
+  btnChangePhoto.addEventListener("click", () => {
+    if(!currentUser){ openLoginModal(); return; }
+    photoFileInput.click();
+  });
+
+  photoFileInput.addEventListener("change", async (e) => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = ""; // permite re-seleccionar el mismo archivo después
+    if(!file || !currentUser) return;
+
+    if(!file.type.startsWith("image/")){
+      showPhotoError("selecciona un archivo de imagen válido.");
+      return;
+    }
+    if(file.size > 5 * 1024 * 1024){
+      showPhotoError("la imagen debe pesar menos de 5 mb.");
+      return;
+    }
+
+    btnChangePhoto.classList.add("uploading");
+    try{
+      const fileRef = storageRef(storage, `profile_pictures/${currentUser.uid}.jpg`);
+      await uploadBytes(fileRef, file, { contentType: file.type });
+      const url = await getDownloadURL(fileRef);
+      await update(ref(db, `users/${currentUser.uid}`), { photoURL: url });
+    }catch(err){
+      console.error("Error al subir la foto de perfil:", err);
+      showPhotoError("no se pudo subir la foto. revisa las reglas de Firebase Storage.");
+    }finally{
+      btnChangePhoto.classList.remove("uploading");
+    }
+  });
 
   // ============================================================
   //  PUBLICAR POEMA
@@ -1183,6 +1370,7 @@
         <div class="avatar-circle" style="width:30px;height:30px;">${avatarInner(authorUser)}</div>
         <span class="name">${escapeHtml(authorUser.name || poem.authorName || "anónimo")}</span>
         <span class="level-badge">nv. ${authorLevel}</span>
+        <span class="badge-icons-inline">${renderBadgeIconsInline(poem.authorUid, "sm")}</span>
         ${isCreator ? `<span class="creator-tag">✦ creador</span>` : ""}
       </div>
     `;
@@ -1310,6 +1498,7 @@
     const info = levelInfo(myUserData.xp);
     const progress = xpProgress(myUserData.xp);
     const count = poemCountFor(currentUser.uid);
+    const maxLikes = maxLikesFor(currentUser.uid);
 
     document.getElementById("myAvatar").innerHTML = avatarInner(myUserData);
     document.getElementById("myName").textContent = myUserData.name;
@@ -1320,8 +1509,9 @@
     document.getElementById("myXpCaption").textContent = progress.caption;
     document.getElementById("myUidText").textContent = currentUser.uid;
 
-    document.getElementById("myBadges").innerHTML = getBadges(myUserData, count).map(b =>
-      `<span class="badge-chip ${b.gold ? "gold" : ""}">${escapeHtml(b.label)}</span>`
+    document.getElementById("myBadgeIcons").innerHTML = renderBadgeIconsInline(currentUser.uid);
+    document.getElementById("myBadges").innerHTML = getBadges(myUserData, count, maxLikes).map(b =>
+      `<span class="badge-chip ${b.gold ? "gold" : ""}">${b.icon || ""}${escapeHtml(b.label)}</span>`
     ).join("");
 
     const myPoems = Object.values(poemsCache)
@@ -1360,6 +1550,7 @@
     if(!user) return;
     const info = levelInfo(user.xp);
     const count = poemCountFor(viewingUid);
+    const maxLikes = maxLikesFor(viewingUid);
 
     document.getElementById("userAvatar").innerHTML = avatarInner(user);
     document.getElementById("userName").textContent = user.name;
@@ -1367,8 +1558,9 @@
     document.getElementById("userXp").textContent = user.xp || 0;
     document.getElementById("userPoemCount").textContent = count;
 
-    document.getElementById("userBadges").innerHTML = getBadges(user, count).map(b =>
-      `<span class="badge-chip ${b.gold ? "gold" : ""}">${escapeHtml(b.label)}</span>`
+    document.getElementById("userBadgeIcons").innerHTML = renderBadgeIconsInline(viewingUid);
+    document.getElementById("userBadges").innerHTML = getBadges(user, count, maxLikes).map(b =>
+      `<span class="badge-chip ${b.gold ? "gold" : ""}">${b.icon || ""}${escapeHtml(b.label)}</span>`
     ).join("");
 
     const poems = Object.values(poemsCache)
@@ -1507,6 +1699,7 @@
     poemsCache = {};
     Object.entries(data).forEach(([id, poem]) => { poemsCache[id] = { id, ...poem }; });
     renderWall();
+    checkBadgeUnlocks();
     if(document.getElementById("view-profile").classList.contains("active")) renderMyProfile();
     if(document.getElementById("view-user").classList.contains("active")) renderUserProfile();
   }, (error) => {
