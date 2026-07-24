@@ -985,21 +985,28 @@
     const data = await res.json();
     return data.access_token;
   }
-
-  async function searchSpotifyTrack(queryText) {
-    if (!queryText || !queryText.trim()) return [];
-    try {
-      const token = await getSpotifyTokenSecure();
-      const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(queryText)}&type=track&limit=5`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const data = await res.json();
-      return (data.tracks && data.tracks.items) || [];
-    } catch (err) {
-      console.error("Error buscando en Spotify:", err);
+async function searchSpotifyTrack(queryText) {
+  if (!queryText || !queryText.trim()) return [];
+  try {
+    const token = await getSpotifyTokenSecure();
+    const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(queryText)}&type=track&limit=5`, {
+      headers: { 
+        "Authorization": `Bearer ${token}` 
+      }
+    });
+    
+    if (!res.ok) {
+      console.error("Error respuesta Spotify Search:", res.status, await res.text());
       return [];
     }
+    
+    const data = await res.json();
+    return (data.tracks && data.tracks.items) || [];
+  } catch (err) {
+    console.error("Error buscando en Spotify:", err);
+    return [];
   }
+}
 
   // Conectar eventos del buscador de canciones en el DOM (si existen en tu HTML)
   const spotifySearchInput = document.getElementById("spotifySearchInput");
