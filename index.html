@@ -639,12 +639,32 @@
         <label class="field-label sans" for="poemContent">el poema</label>
         <textarea id="poemContent" placeholder="escribe sin miedo. los saltos de línea se guardan tal como los dejes..."></textarea>
       </div>
+
+      <!-- ============================================================ -->
+      <!--  BUSCADOR DE MÚSICA (SPOTIFY) AGREGADO                       -->
+      <!-- ============================================================ -->
+      <div class="field" style="margin-top: 12px; position: relative;">
+        <label class="field-label sans" for="spotifySearchInput">música de fondo <span style="opacity:0.6">(opcional)</span></label>
+        <input 
+          type="text" 
+          id="spotifySearchInput" 
+          placeholder="busca una canción o artista en spotify..." 
+          style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.2); color: #fff; font-size: 13px;"
+        >
+        <div 
+          id="spotifySearchResults" 
+          style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; z-index: 100; max-height: 200px; overflow-y: auto;"
+        ></div>
+        <div id="selectedTrackPreview"></div>
+      </div>
+      <!-- ============================================================ -->
+
       <div class="publish-row">
         <span class="hint">publicar te da +25 xp</span>
         <button class="pill-btn sans" id="publishBtn">publicar</button>
       </div>
-      <div class="error-msg sans" id="errorMsg"></div>
-    </section>
+      <div class="error" id="errorMsg"></div>
+</section>
 
     <section class="login-prompt" id="composerLoggedOut">
       <p>inicia sesión para dejar tu voz en el espejo.</p>
