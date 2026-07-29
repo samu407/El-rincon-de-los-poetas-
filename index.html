@@ -30,6 +30,30 @@
     --shadow-deep: 0 30px 60px -20px rgba(0,0,0,0.6);
   }
 
+  /* ---------- tema "luz de vela" (claro / pergamino) ---------- */
+  html[data-theme="candle"]{
+    --bg-deep:#f3ead9;
+    --bg-panel:#ede1cb;
+    --bg-panel-raised:#e6d8bd;
+    --ink:#3b2f22;
+    --ink-dim:#6b5c47;
+    --ink-faint:#8f7e64;
+    --lavender:#8a5cb8;
+    --lavender-dim:#6f4a99;
+    --lavender-soft:rgba(138,92,184,0.12);
+    --gold:#a9762f;
+    --gold-soft:rgba(169,118,47,0.16);
+    --rose:#b25858;
+    --hairline:rgba(59,47,34,0.12);
+    --shadow-deep: 0 30px 60px -20px rgba(90,70,40,0.25);
+  }
+  html[data-theme="candle"] body{
+    background:
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(138,92,184,0.05), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 90% 100%, rgba(169,118,47,0.06), transparent 60%),
+      var(--bg-deep);
+  }
+
   *{box-sizing:border-box;}
   ::selection{ background:var(--lavender-dim); color:var(--bg-deep); }
   html{scroll-behavior:smooth;}
@@ -119,7 +143,16 @@
     padding:14px; font-family:'Inter',sans-serif; font-size:12px; color:var(--ink-faint); text-align:center;
   }
 
-  .nav-auth{ margin-left:auto; flex-shrink:0; position:relative; }
+  .nav-auth{ flex-shrink:0; position:relative; }
+  .nav-right{ margin-left:auto; flex-shrink:0; display:flex; align-items:center; gap:12px; }
+
+  .theme-toggle-btn{
+    background:transparent; border:1px solid var(--hairline); color:var(--ink-dim);
+    width:34px; height:34px; border-radius:50%; cursor:pointer; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; transition:all 0.3s ease;
+  }
+  .theme-toggle-btn:hover{ border-color:var(--gold); color:var(--gold); background:var(--gold-soft); }
+  .theme-toggle-btn svg{ width:16px; height:16px; }
 
   .btn-login{
     font-family:'Inter', sans-serif;
@@ -287,6 +320,43 @@
   }
   .poem-delete-btn:hover{ color:var(--rose); border-color:var(--rose); background:rgba(217,139,139,0.1); }
   .poem-delete-btn svg{ width:15px; height:15px; }
+
+  .poem-owner-actions{ position:absolute; top:34px; right:4px; display:flex; gap:8px; }
+  .poem-owner-actions .poem-delete-btn,
+  .poem-owner-actions .poem-edit-btn{ position:static; }
+  .poem-edit-btn{
+    background:transparent; border:1px solid var(--hairline);
+    color:var(--ink-faint); width:30px; height:30px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:all 0.25s ease; flex-shrink:0;
+  }
+  .poem-edit-btn:hover{ color:var(--lavender); border-color:var(--lavender-dim); background:var(--lavender-soft); }
+  .poem-edit-btn svg{ width:14px; height:14px; }
+
+  /* ---------- edición inline de poema ---------- */
+  .poem-edit-form{ margin-bottom:10px; }
+  .poem-edit-form input, .poem-edit-form textarea{ margin-bottom:16px; }
+  .poem-edit-form textarea{ min-height:140px; }
+  .poem-edit-form .publish-row{ justify-content:flex-start; gap:14px; }
+
+  /* ---------- favoritos / copiar ---------- */
+  .react-btn.active-fav{ color:var(--gold); border-color:rgba(201,169,97,0.4); background:var(--gold-soft); }
+
+  /* ---------- poema destacado del día ---------- */
+  .poem-card.featured-card{
+    background:linear-gradient(180deg, rgba(201,169,97,0.08), transparent 45%);
+    border:1px solid rgba(201,169,97,0.4);
+    border-radius:18px;
+    padding:36px 26px 42px;
+    box-shadow:0 0 0 1px rgba(201,169,97,0.15), 0 0 40px rgba(201,169,97,0.12);
+    margin-bottom:36px;
+  }
+  .poem-card.featured-card:not(:last-child){ border-bottom:1px solid rgba(201,169,97,0.4); }
+  .featured-label{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'Inter', sans-serif; font-size:10px; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--gold); margin-bottom:18px;
+  }
 
   /* ---------- muro bloqueado (sin sesión) ---------- */
   .wall-locked{
@@ -464,7 +534,43 @@
   .profile-name{
     font-family:'Playfair Display', serif; font-style:italic; font-weight:500;
     font-size:1.7rem; color:var(--ink); margin:0 0 12px;
+    display:flex; align-items:center; justify-content:center; gap:10px;
   }
+  .profile-name .edit-name-btn{
+    background:transparent; border:1px solid var(--hairline); color:var(--ink-faint);
+    width:26px; height:26px; border-radius:50%; cursor:pointer; flex-shrink:0;
+    display:inline-flex; align-items:center; justify-content:center; transition:all 0.25s ease;
+  }
+  .profile-name .edit-name-btn:hover{ color:var(--lavender); border-color:var(--lavender-dim); }
+  .profile-name .edit-name-btn svg{ width:12px; height:12px; }
+
+  .name-edit-form{
+    display:flex; align-items:center; justify-content:center; gap:10px; margin:0 0 18px; flex-wrap:wrap;
+  }
+  .name-edit-form input{
+    max-width:220px; text-align:center; font-size:1.1rem; font-style:italic;
+  }
+  .name-edit-form button{
+    font-family:'Inter', sans-serif; font-size:11px; letter-spacing:0.06em; text-transform:uppercase;
+    background:transparent; color:var(--lavender); border:1px solid var(--lavender-dim);
+    padding:8px 16px; border-radius:100px; cursor:pointer; white-space:nowrap;
+  }
+  .name-edit-form button:hover{ background:var(--lavender); color:var(--bg-deep); }
+
+  /* ---------- seudónimo en el compositor ---------- */
+  .pseudonym-row{
+    display:flex; align-items:center; gap:10px; margin:-8px 0 22px; flex-wrap:wrap;
+  }
+  .pseudonym-row label{
+    font-family:'Inter', sans-serif; font-size:12px; color:var(--ink-faint);
+    display:flex; align-items:center; gap:7px; cursor:pointer;
+  }
+  .pseudonym-row input[type="text"]{
+    max-width:220px; font-size:14px; padding:6px 2px 8px;
+  }
+
+  /* ---------- libreta de versos (favoritos) ---------- */
+  .favorites-empty-hint{ font-family:'Inter', sans-serif; font-size:12px; color:var(--ink-faint); text-align:center; padding:20px 0; }
   .badge-row{ display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap; margin-bottom:26px; }
   .badge-chip{
     font-family:'Inter', sans-serif; font-size:10.5px; letter-spacing:0.05em;
@@ -655,8 +761,13 @@
     <div class="search-results" id="searchResults"></div>
   </div>
 
-  <div class="nav-auth" id="navAuth">
-    <button class="btn-login" id="btnOpenLogin">iniciar sesión</button>
+  <div class="nav-right">
+    <button class="theme-toggle-btn" id="themeToggleBtn" title="cambiar tema">
+      <svg id="themeToggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>
+    </button>
+    <div class="nav-auth" id="navAuth">
+      <button class="btn-login" id="btnOpenLogin">iniciar sesión</button>
+    </div>
   </div>
 </nav>
 
@@ -693,11 +804,24 @@
           placeholder="busca una canción o artista en spotify..." 
           style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.2); color: #fff; font-size: 13px;"
         >
+        <span class="hint" style="margin-top:4px; display:block;">Nota: Spotify reproduce una vista previa de 30 segundos para usuarios web.</span>
         <div 
           id="spotifySearchResults" 
           style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; z-index: 100; max-height: 200px; overflow-y: auto;"
         ></div>
         <div id="selectedTrackPreview"></div>
+      </div>
+      <!-- ============================================================ -->
+
+      <!-- ============================================================ -->
+      <!--  SEUDÓNIMO / PUBLICAR ANÓNIMAMENTE                            -->
+      <!-- ============================================================ -->
+      <div class="pseudonym-row">
+        <label class="sans">
+          <input type="checkbox" id="pseudonymToggle">
+          publicar bajo un seudónimo
+        </label>
+        <input type="text" id="pseudonymInput" placeholder="un alma enigmática" style="display:none;">
       </div>
       <!-- ============================================================ -->
 
@@ -738,7 +862,17 @@
         </button>
         <input type="file" id="photoFileInput" accept="image/*" hidden>
       </div>
-      <h2 class="profile-name" id="myName"></h2>
+      <h2 class="profile-name" id="myName">
+        <span id="myNameText"></span>
+        <button class="edit-name-btn" id="btnEditName" title="editar nombre">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.8-2.6A1 1 0 0 1 9.6 5h4.8a1 1 0 0 1 .8.4L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13.5" r="3.3"/></svg>
+        </button>
+      </h2>
+      <div class="name-edit-form" id="nameEditForm" style="display:none;">
+        <input type="text" id="nameEditInput" placeholder="tu nombre de poeta">
+        <button class="sans" id="btnSaveName">guardar</button>
+        <button class="sans" id="btnCancelName">cancelar</button>
+      </div>
       <div class="badge-icons-row" id="myBadgeIcons"></div>
       <div class="badge-row" id="myBadges"></div>
       <div class="error-msg sans" id="photoError"></div>
@@ -757,6 +891,9 @@
         <button id="btnCopyUid" title="copiar">copiar</button>
       </div>
     </div>
+    <div class="section-divider"><div class="line"></div><span class="mark">mi libreta de versos</span><div class="line"></div></div>
+    <div id="myFavoritesList"></div>
+
     <div class="section-divider"><div class="line"></div><span class="mark">mis poemas</span><div class="line"></div></div>
     <div id="myPoemsList"></div>
   </div>
@@ -913,6 +1050,8 @@
   const POEMS_PAGE_SIZE = 20;
   let poemsUnsubscribe = null;     // función para desuscribirse del listener anterior de poemas
   let poemsHasMore = false;        // si probablemente hay más poemas por cargar
+  let editingPoemId = null;        // poema que se está editando actualmente en línea
+  const THEME_KEY = "espejo_theme";
 
   const AVATAR_ICONS = {
     feather: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4c-5 0-9 2-11 6-1.3 2.6-2 5.6-2 9l3-3c3-1 6-2 8-4 3-3 4-6 2-8Z"/><path d="M9 15l6-6"/></svg>`,
@@ -943,6 +1082,15 @@
     const div = document.createElement("div");
     div.textContent = str == null ? "" : str;
     return div.innerHTML;
+  }
+
+  function escapeAttr(str){
+    return (str == null ? "" : String(str))
+      .replace(/&/g, "&amp;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
   }
 
   function timeAgo(timestamp){
@@ -1115,6 +1263,39 @@ async function searchSpotifyTrack(queryText) {
       }
     });
   }
+
+  // ============================================================
+  //  TEMA VISUAL: NOCHE PROFUNDA / LUZ DE VELA
+  // ============================================================
+  const MOON_ICON = `<path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/>`;
+  const CANDLE_ICON = `<path d="M12 2c1.2 1.8 2 3.2 2 4.4a2 2 0 1 1-4 0C10 5.2 10.8 3.8 12 2Z"/><path d="M8 21v-7a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v7"/><path d="M6 21h12"/>`;
+  const themeToggleIcon = document.getElementById("themeToggleIcon");
+  const themeToggleBtn = document.getElementById("themeToggleBtn");
+
+  function applyTheme(theme){
+    if(theme === "candle"){
+      document.documentElement.setAttribute("data-theme", "candle");
+      themeToggleIcon.innerHTML = CANDLE_ICON;
+      themeToggleBtn.title = "cambiar a noche profunda";
+    }else{
+      document.documentElement.removeAttribute("data-theme");
+      themeToggleIcon.innerHTML = MOON_ICON;
+      themeToggleBtn.title = "cambiar a luz de vela";
+    }
+  }
+
+  (function initTheme(){
+    let saved = null;
+    try{ saved = localStorage.getItem(THEME_KEY); }catch(err){}
+    applyTheme(saved === "candle" ? "candle" : "night");
+  })();
+
+  themeToggleBtn.addEventListener("click", () => {
+    const isCandle = document.documentElement.getAttribute("data-theme") === "candle";
+    const next = isCandle ? "night" : "candle";
+    applyTheme(next);
+    try{ localStorage.setItem(THEME_KEY, next); }catch(err){}
+  });
 
   // ============================================================
   //  NAVEGACIÓN ENTRE VISTAS
@@ -1432,6 +1613,14 @@ async function searchSpotifyTrack(queryText) {
   const publishBtn = document.getElementById("publishBtn");
   const errorMsg = document.getElementById("errorMsg");
 
+  // ---------- seudónimo al publicar ----------
+  const pseudonymToggle = document.getElementById("pseudonymToggle");
+  const pseudonymInput = document.getElementById("pseudonymInput");
+  pseudonymToggle.addEventListener("change", () => {
+    pseudonymInput.style.display = pseudonymToggle.checked ? "block" : "none";
+    if(pseudonymToggle.checked) pseudonymInput.focus();
+  });
+
   function showError(text){
     errorMsg.textContent = text;
     errorMsg.classList.add("show");
@@ -1444,6 +1633,9 @@ async function searchSpotifyTrack(queryText) {
     const content = contentInput.value;
     if(!content || !content.trim()){ showError("el poema no puede estar vacío."); contentInput.focus(); return; }
 
+    const usePseudonym = pseudonymToggle.checked;
+    const pseudonymName = pseudonymInput.value.trim() || "un alma enigmática";
+
     publishBtn.disabled = true;
     publishBtn.textContent = "publicando...";
     try{
@@ -1451,9 +1643,10 @@ async function searchSpotifyTrack(queryText) {
         title: title || "",
         content: content,
         authorUid: currentUser.uid,
-        authorName: myUserData.name,
-        authorPhotoURL: myUserData.photoURL || null,
-        authorAvatarIcon: myUserData.avatarIcon || "feather",
+        authorName: usePseudonym ? pseudonymName : myUserData.name,
+        authorPhotoURL: usePseudonym ? null : (myUserData.photoURL || null),
+        authorAvatarIcon: usePseudonym ? "moon" : (myUserData.avatarIcon || "feather"),
+        pseudonym: usePseudonym,
         timestamp: Date.now(),
         music: selectedSpotifyTrack || null, // Guardamos la música seleccionada
         reactions: {},
@@ -1462,6 +1655,9 @@ async function searchSpotifyTrack(queryText) {
       await update(ref(db, `users/${currentUser.uid}`), { xp: increment(25) });
       titleInput.value = "";
       contentInput.value = "";
+      pseudonymToggle.checked = false;
+      pseudonymInput.value = "";
+      pseudonymInput.style.display = "none";
       selectedSpotifyTrack = null;
       if (selectedTrackPreview) selectedTrackPreview.innerHTML = "";
     }catch(err){
@@ -1529,13 +1725,20 @@ async function searchSpotifyTrack(queryText) {
     const authorLevel = levelInfo(authorUser.xp).level;
     const isCreator = !!CREATOR_EMAIL && authorUser.email === CREATOR_EMAIL;
 
+    // si el poema se publicó bajo un seudónimo, respetamos el nombre guardado
+    // y no exponemos el nombre real ni el nivel/insignias del autor.
+    const displayName = poem.pseudonym ? (poem.authorName || "un alma enigmática") : (authorUser.name || poem.authorName || "anónimo");
+    const displayAvatarSource = poem.pseudonym
+      ? { photoURL: null, avatarIcon: poem.authorAvatarIcon || "moon" }
+      : authorUser;
+
     const authorRow = options.hideAuthor ? "" : `
       <div class="poem-author-row" data-action="open-author" data-uid="${poem.authorUid}">
-        <div class="avatar-circle" style="width:30px;height:30px;">${avatarInner(authorUser)}</div>
-        <span class="name">${escapeHtml(authorUser.name || poem.authorName || "anónimo")}</span>
-        <span class="level-badge">nv. ${authorLevel}</span>
+        <div class="avatar-circle" style="width:30px;height:30px;">${avatarInner(displayAvatarSource)}</div>
+        <span class="name">${escapeHtml(displayName)}</span>
+        ${poem.pseudonym ? "" : `<span class="level-badge">nv. ${authorLevel}</span>
         <span class="badge-icons-inline">${renderBadgeIconsInline(poem.authorUid, "sm")}</span>
-        ${isCreator ? `<span class="creator-tag">✦ creador</span>` : ""}
+        ${isCreator ? `<span class="creator-tag">✦ creador</span>` : ""}`}
       </div>
     `;
 
@@ -1566,19 +1769,48 @@ async function searchSpotifyTrack(queryText) {
       : `<div class="comment-login-hint">inicia sesión para comentar.</div>`;
 
     const isOwner = !!currentUser && currentUser.uid === poem.authorUid;
-    const deleteBtn = isOwner ? `
-      <button class="poem-delete-btn" data-action="delete-poem" data-id="${poem.id}" title="eliminar poema" aria-label="eliminar poema">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/><path d="M6 7l1 13a2 2 0 0 0 2 1.9h6a2 2 0 0 0 2-1.9l1-13"/><path d="M10 11v6M14 11v6"/></svg>
-      </button>
+    const isEditing = isOwner && editingPoemId === poem.id;
+
+    const ownerActions = isOwner ? `
+      <div class="poem-owner-actions">
+        <button class="poem-edit-btn" data-action="edit-poem" data-id="${poem.id}" title="editar poema" aria-label="editar poema">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
+        <button class="poem-delete-btn" data-action="delete-poem" data-id="${poem.id}" title="eliminar poema" aria-label="eliminar poema">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4.5A1.5 1.5 0 0 1 10.5 3h3A1.5 1.5 0 0 1 15 4.5V7"/><path d="M6 7l1 13a2 2 0 0 0 2 1.9h6a2 2 0 0 0 2-1.9l1-13"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>
     ` : "";
 
+    // favoritos ("mi libreta de versos")
+    const myFavorites = (myUserData && myUserData.favorites) || {};
+    const isFavorited = !!currentUser && !!myFavorites[poem.id];
+
+    const bodyOrEditForm = isEditing ? `
+      <div class="poem-edit-form" data-edit-for="${poem.id}">
+        <div class="field">
+          <input type="text" class="edit-title-input" value="${escapeAttr(poem.title || "")}" placeholder="título (opcional)">
+        </div>
+        <div class="field">
+          <textarea class="edit-content-input" placeholder="el poema">${escapeHtml(poem.content)}</textarea>
+        </div>
+        <div class="publish-row">
+          <button class="pill-btn sans" data-action="save-edit-poem" data-id="${poem.id}">guardar cambios</button>
+          <button class="link-btn" data-action="cancel-edit-poem" data-id="${poem.id}">cancelar</button>
+        </div>
+      </div>
+    ` : `
+      ${poem.title ? `<h2 class="poem-title">${escapeHtml(poem.title)}</h2>` : ""}
+      <p class="poem-content">${escapeHtml(poem.content)}</p>
+    `;
+
     return `
-      <article class="poem-card ${isCreator ? "creator-card" : ""}" data-poem-id="${poem.id}">
-        ${deleteBtn}
+      <article class="poem-card ${isCreator && !poem.pseudonym ? "creator-card" : ""} ${options.isFeatured ? "featured-card" : ""}" data-poem-id="${poem.id}">
+        ${options.isFeatured ? `<div class="featured-label">✦ poema del día</div>` : ""}
+        ${ownerActions}
         ${authorRow}
-        ${poem.title ? `<h2 class="poem-title">${escapeHtml(poem.title)}</h2>` : ""}
-        <p class="poem-content">${escapeHtml(poem.content)}</p>
-        ${spotifyEmbed}
+        ${bodyOrEditForm}
+        ${isEditing ? "" : spotifyEmbed}
         <div class="poem-meta">
           <span>${timeAgo(poem.timestamp)}</span>
         </div>
@@ -1590,6 +1822,12 @@ async function searchSpotifyTrack(queryText) {
           <button class="react-btn ${myReaction === "dislike" ? "active-dislike" : ""}" data-action="dislike" data-id="${poem.id}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s7.5-4.6 10-9.3C23.5 8.4 21.7 5 18.3 5c-1.9 0-3.5 1-4.3 2.5C13.2 6 11.6 5 9.7 5 6.3 5 4.5 8.4 6 11.7 4.5 16.4 12 21 12 21Z"/></svg>
             ${dislikeCount}
+          </button>
+          <button class="react-btn ${isFavorited ? "active-fav" : ""}" data-action="toggle-favorite" data-id="${poem.id}" title="guardar en mi libreta de versos">
+            <svg viewBox="0 0 24 24" fill="${isFavorited ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L12 16.9 6.4 20.1l1.4-6.3-4.8-4.3 6.4-.6L12 3Z"/></svg>
+          </button>
+          <button class="react-btn" data-action="copy-poem" data-id="${poem.id}" title="copiar / compartir">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           </button>
           <button class="comment-toggle" data-action="toggle-comments" data-id="${poem.id}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.5 9 9 0 0 1-3.5-.7L3 21l1.8-5a8.4 8.4 0 0 1-.8-3.5A8.4 8.4 0 0 1 12.9 3 8.5 8.5 0 0 1 21 11.5Z"/></svg>
