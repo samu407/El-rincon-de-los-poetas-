@@ -956,11 +956,11 @@
       continuar con google
     </button>
 
-    <div class="modal-divider"><div class="line"></div><span>o con tu correo</span><div class="line"></div></div>
+    <div class="modal-divider"><div class="line"></div><span>o con tu usuario</span><div class="line"></div></div>
 
     <div class="field">
-      <label class="field-label sans">correo</label>
-      <input type="email" id="emailInput" placeholder="tú@correo.com">
+      <label class="field-label sans">nombre de usuario</label>
+      <input type="text" id="usernameInput" placeholder="tu nombre de usuario" autocomplete="off">
     </div>
     <div class="field" style="margin-bottom:16px;">
       <label class="field-label sans">contraseña</label>
@@ -973,6 +973,30 @@
     <div class="modal-toggle sans">
       <span id="authToggleText">¿no tienes cuenta?</span> <button id="authToggleBtn">créala aquí</button>
     </div>
+  </div>
+</div>
+
+<!-- ============ MODAL DE BIENVENIDA / ONBOARDING ============ -->
+<div class="modal-overlay" id="onboardingModal">
+  <div class="modal" style="max-width:420px;">
+    <h3 class="modal-title">antes de empezar...</h3>
+    <p class="modal-sub sans">cuéntanos un poco de ti para completar tu espacio en el espejo</p>
+
+    <div class="field">
+      <label class="field-label sans">nombre con el que quieres ser recordado</label>
+      <input type="text" id="onbName" placeholder="tu nombre o seudónimo">
+    </div>
+    <div class="field">
+      <label class="field-label sans">género / identificación <span style="opacity:0.6">(opcional)</span></label>
+      <input type="text" id="onbGender" placeholder="cómo te identificas">
+    </div>
+    <div class="field" style="margin-bottom:16px;">
+      <label class="field-label sans">tu historia o razón para escribir</label>
+      <textarea id="onbStory" placeholder="¿por qué escribes? ¿qué te trae al espejo?" style="min-height:110px;"></textarea>
+    </div>
+
+    <button class="pill-btn sans" id="btnSaveOnboarding" style="width:100%;">entrar al espejo</button>
+    <div class="error-msg sans" id="onboardingError"></div>
   </div>
 </div>
 
@@ -1327,7 +1351,7 @@ async function searchSpotifyTrack(queryText) {
   function openLoginModal(){ loginModal.classList.add("show"); authError.classList.remove("show"); }
   function closeLoginModal(){
     loginModal.classList.remove("show");
-    document.getElementById("emailInput").value = "";
+    document.getElementById("usernameInput").value = "";
     document.getElementById("passwordInput").value = "";
   }
 
@@ -1354,22 +1378,22 @@ async function searchSpotifyTrack(queryText) {
     console.error("Firebase auth error:", code, err && err.message);
     switch(code){
       case "auth/email-already-in-use":
-        return "ese correo ya tiene una cuenta creada. intenta iniciar sesión en vez de crear una nueva.";
+        return "ese nombre de usuario ya tiene una cuenta creada. intenta iniciar sesión en vez de crear una nueva.";
       case "auth/invalid-email":
-        return "ese correo no tiene un formato válido.";
+        return "ese nombre de usuario no es válido. usa solo letras, números, puntos o guiones bajos.";
       case "auth/weak-password":
         return "la contraseña debe tener al menos 6 caracteres.";
       case "auth/missing-password":
         return "escribe una contraseña.";
       case "auth/wrong-password":
       case "auth/invalid-credential":
-        return "correo o contraseña incorrectos.";
+        return "usuario o contraseña incorrectos.";
       case "auth/user-not-found":
-        return "no existe ninguna cuenta con ese correo. prueba a crearla.";
+        return "no existe ninguna cuenta con ese usuario. prueba a crearla.";
       case "auth/too-many-requests":
         return "demasiados intentos seguidos. espera un momento y vuelve a intentarlo.";
       case "auth/operation-not-allowed":
-        return "el inicio de sesión por correo/contraseña no está activado en tu proyecto de Firebase.";
+        return "el inicio de sesión por usuario/contraseña no está activado en tu proyecto de Firebase.";
       case "auth/unauthorized-domain":
         return "este dominio no está autorizado en Firebase.";
       case "auth/popup-blocked":
@@ -1384,6 +1408,14 @@ async function searchSpotifyTrack(queryText) {
     }
   }
 
+  // convierte el nombre de usuario elegido en un correo interno válido para Firebase Auth
+  function usernameToPseudoEmail(username){
+    const clean = username.trim().toLowerCase().replace(/[^a-z0-9._-]/g, "");
+    return `${clean}@espejo.com`;
+  }
+
+  let pendingUsername = null; // nombre de usuario elegido al registrarse, para usarlo como nombre visible
+
   document.getElementById("btnGoogle").addEventListener("click", async () => {
     try{
       await signInWithPopup(auth, googleProvider);
@@ -1394,17 +1426,21 @@ async function searchSpotifyTrack(queryText) {
   });
 
   document.getElementById("btnEmailAuth").addEventListener("click", async () => {
-    const email = document.getElementById("emailInput").value.trim();
+    const username = document.getElementById("usernameInput").value.trim();
     const password = document.getElementById("passwordInput").value;
-    if(!email || !password){ showAuthError("completa correo y contraseña."); return; }
+    if(!username || !password){ showAuthError("completa tu nombre de usuario y contraseña."); return; }
+    if(username.length < 3){ showAuthError("el nombre de usuario debe tener al menos 3 caracteres."); return; }
+    const pseudoEmail = usernameToPseudoEmail(username);
     try{
       if(authMode === "login"){
-        await signInWithEmailAndPassword(auth, email, password);
+        await signInWithEmailAndPassword(auth, pseudoEmail, password);
       }else{
-        await createUserWithEmailAndPassword(auth, email, password);
+        pendingUsername = username;
+        await createUserWithEmailAndPassword(auth, pseudoEmail, password);
       }
       closeLoginModal();
     }catch(err){
+      pendingUsername = null;
       showAuthError(mapAuthError(err));
     }
   });
@@ -1452,19 +1488,64 @@ async function searchSpotifyTrack(queryText) {
     const snap = await get(userRef);
     if(!snap.exists()){
       const avatarIcon = AVATAR_KEYS[Math.floor(Math.random() * AVATAR_KEYS.length)];
+      const chosenName = pendingUsername || user.displayName || (user.email ? user.email.split("@")[0] : "poeta anónimo");
       await set(userRef, {
-        name: user.displayName || (user.email ? user.email.split("@")[0] : "poeta anónimo"),
+        name: chosenName,
         photoURL: user.photoURL || null,
         avatarIcon: avatarIcon,
         email: user.email || null,
         xp: 0,
         level: 1,
+        onboardingCompleted: !!user.displayName, // las cuentas de Google ya traen nombre; usuario/contraseña pasa por el onboarding
         createdAt: Date.now()
       });
+      pendingUsername = null;
     }else if(!snap.val().email && user.email){
       await update(userRef, { email: user.email });
     }
   }
+
+  // ============================================================
+  //  MODAL DE BIENVENIDA / ONBOARDING (usuarios nuevos)
+  // ============================================================
+  const onboardingModal = document.getElementById("onboardingModal");
+  const onboardingError = document.getElementById("onboardingError");
+
+  function openOnboardingModal(){
+    document.getElementById("onbName").value = (myUserData && myUserData.name) || "";
+    document.getElementById("onbGender").value = "";
+    document.getElementById("onbStory").value = "";
+    onboardingError.classList.remove("show");
+    onboardingModal.classList.add("show");
+  }
+
+  function showOnboardingError(msg){
+    onboardingError.textContent = msg;
+    onboardingError.classList.add("show");
+  }
+
+  document.getElementById("btnSaveOnboarding").addEventListener("click", async () => {
+    if(!currentUser) return;
+    const name = document.getElementById("onbName").value.trim();
+    const gender = document.getElementById("onbGender").value.trim();
+    const story = document.getElementById("onbStory").value.trim();
+
+    if(!name){ showOnboardingError("cuéntanos con qué nombre quieres ser recordado."); return; }
+    if(!story){ showOnboardingError("cuéntanos brevemente tu historia o razón para escribir."); return; }
+
+    try{
+      await update(ref(db, `users/${currentUser.uid}`), {
+        name,
+        gender: gender || null,
+        story,
+        onboardingCompleted: true
+      });
+      onboardingModal.classList.remove("show");
+    }catch(err){
+      console.error("no se pudo guardar el onboarding:", err);
+      showOnboardingError("no se pudo guardar. inténtalo de nuevo.");
+    }
+  });
 
   onAuthStateChanged(auth, async (user) => {
     currentUser = user;
@@ -1485,6 +1566,9 @@ async function searchSpotifyTrack(queryText) {
         renderWall();
         checkBadgeUnlocks();
         if(document.getElementById("view-profile").classList.contains("active")) renderMyProfile();
+        if(myUserData && !myUserData.onboardingCompleted){
+          openOnboardingModal();
+        }
       });
     }else{
       myUserData = null;
@@ -1497,7 +1581,8 @@ async function searchSpotifyTrack(queryText) {
   });
 
   function renderComposerState(){
-    document.getElementById("composerLoggedIn").style.display = currentUser ? "block" : "none";
+    const canCompose = !!currentUser && !!myUserData && !!myUserData.onboardingCompleted;
+    document.getElementById("composerLoggedIn").style.display = canCompose ? "block" : "none";
     document.getElementById("composerLoggedOut").style.display = currentUser ? "none" : "block";
   }
 
@@ -1688,6 +1773,122 @@ async function searchSpotifyTrack(queryText) {
   }
 
   // ============================================================
+  //  FAVORITOS ("MI LIBRETA DE VERSOS")
+  // ============================================================
+  async function toggleFavorite(poemId){
+    if(!currentUser){ openLoginModal(); return; }
+    const favRef = ref(db, `users/${currentUser.uid}/favorites/${poemId}`);
+    const isFav = !!(myUserData && myUserData.favorites && myUserData.favorites[poemId]);
+    try{
+      if(isFav){
+        await remove(favRef);
+      }else{
+        await set(favRef, true);
+      }
+    }catch(err){
+      console.error("no se pudo actualizar favoritos:", err);
+    }
+  }
+
+  // ============================================================
+  //  COPIAR / COMPARTIR POEMA FORMATEADO
+  // ============================================================
+  function copyPoemFormatted(poemId){
+    const poem = poemsCache[poemId];
+    if(!poem) return;
+    const authorUser = usersCache[poem.authorUid];
+    const signatureName = poem.pseudonym ? (poem.authorName || "un alma enigmática") : ((authorUser && authorUser.name) || poem.authorName || "anónimo");
+    const titlePart = poem.title ? `“${poem.title}”\n\n` : "";
+    const text = `${titlePart}${poem.content}\n\n— ${signatureName}, el espejo de las almas`;
+
+    const done = () => {
+      const copyBtn = document.querySelector(`[data-action="copy-poem"][data-id="${poemId}"]`);
+      if(copyBtn){
+        const original = copyBtn.innerHTML;
+        copyBtn.innerHTML = "copiado ✓";
+        setTimeout(() => { copyBtn.innerHTML = original; }, 1800);
+      }
+    };
+
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    }else{
+      fallbackCopy(text, done);
+    }
+  }
+
+  function fallbackCopy(text, done){
+    try{
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+      if(done) done();
+    }catch(err){
+      console.error("no se pudo copiar el poema:", err);
+    }
+  }
+
+  // ============================================================
+  //  EDICIÓN DE POEMA
+  // ============================================================
+  async function savePoemEdit(poemId, newTitle, newContent){
+    const poem = poemsCache[poemId];
+    if(!poem || !currentUser || poem.authorUid !== currentUser.uid) return;
+    const title = (newTitle || "").trim();
+    const content = (newContent || "");
+    if(!content.trim()){
+      alert("el poema no puede quedar vacío.");
+      return;
+    }
+    try{
+      await update(ref(db, "poems/" + poemId), { title, content });
+      editingPoemId = null;
+      reRenderPoemViews();
+    }catch(err){
+      console.error("no se pudo actualizar el poema:", err);
+    }
+  }
+
+  // ============================================================
+  //  RECÁLCULO REAL DE XP (basado en la cantidad exacta de poemas)
+  // ============================================================
+  async function recalcUserXp(uid){
+    try{
+      const poemsSnap = await get(poemsRef);
+      const allPoems = poemsSnap.val() || {};
+      let total = 0;
+      Object.values(allPoems).forEach(p => { if(p && p.authorUid === uid) total++; });
+      await update(ref(db, `users/${uid}`), { xp: total * 25 });
+    }catch(err){
+      console.error("no se pudo recalcular el xp:", err);
+    }
+  }
+
+  async function deletePoem(poemId){
+    if(!currentUser) return;
+    try{
+      await remove(ref(db, "poems/" + poemId));
+      await recalcUserXp(currentUser.uid);
+    }catch(err){
+      console.error("no se pudo eliminar el poema:", err);
+    }
+  }
+
+  // ============================================================
+  //  RE-RENDER DE LISTAS DE POEMAS VISIBLES (tras editar, etc.)
+  // ============================================================
+  function reRenderPoemViews(){
+    renderWall();
+    if(document.getElementById("view-profile").classList.contains("active")) renderMyProfile();
+    if(document.getElementById("view-user").classList.contains("active")) renderUserProfile();
+  }
+
+  // ============================================================
   //  COMENTARIOS
   // ============================================================
   async function submitComment(poemId, text){
@@ -1849,6 +2050,22 @@ async function searchSpotifyTrack(queryText) {
   // ============================================================
   const poemWall = document.getElementById("poemWall");
 
+  function getFeaturedPoemId(poems){
+    if(!poems.length) return null;
+    let best = null, bestLikes = -1;
+    poems.forEach(p => {
+      const reactions = p.reactions || {};
+      const likes = Object.values(reactions).filter(t => t === "like").length;
+      if(likes > bestLikes){ bestLikes = likes; best = p; }
+    });
+    if(bestLikes > 0) return best.id;
+    // sin likes todavía: elegimos uno al azar, estable durante la sesión
+    if(!getFeaturedPoemId._randomId || !poems.some(p => p.id === getFeaturedPoemId._randomId)){
+      getFeaturedPoemId._randomId = poems[Math.floor(Math.random() * poems.length)].id;
+    }
+    return getFeaturedPoemId._randomId;
+  }
+
   function renderWall(){
     if(!currentUser){
       poemWall.innerHTML = `
@@ -1875,7 +2092,13 @@ async function searchSpotifyTrack(queryText) {
       ? `<div class="load-more-wrap"><button class="btn-load-more sans" id="btnLoadMorePoems">cargar más poemas</button></div>`
       : "";
 
-    poemWall.innerHTML = poems.map((poem, i) =>
+    const featuredId = getFeaturedPoemId(poems);
+    const featuredHtml = featuredId
+      ? renderPoemCard(poemsCache[featuredId], { isFeatured: true })
+      : "";
+    const restPoems = poems.filter(p => p.id !== featuredId);
+
+    poemWall.innerHTML = featuredHtml + restPoems.map((poem, i) =>
       `<div style="animation-delay:${Math.min(i,8)*0.05}s">${renderPoemCard(poem)}</div>`
     ).join("") + loadMoreHtml;
 
@@ -1890,6 +2113,11 @@ async function searchSpotifyTrack(queryText) {
     container.addEventListener("click", (e) => {
       const likeBtn = e.target.closest('[data-action="like"]');
       const dislikeBtn = e.target.closest('[data-action="dislike"]');
+      const favBtn = e.target.closest('[data-action="toggle-favorite"]');
+      const copyBtn = e.target.closest('[data-action="copy-poem"]');
+      const editBtn = e.target.closest('[data-action="edit-poem"]');
+      const saveEditBtn = e.target.closest('[data-action="save-edit-poem"]');
+      const cancelEditBtn = e.target.closest('[data-action="cancel-edit-poem"]');
       const toggleBtn = e.target.closest('[data-action="toggle-comments"]');
       const sendBtn = e.target.closest('[data-action="send-comment"]');
       const authorRow = e.target.closest('[data-action="open-author"]');
@@ -1897,13 +2125,37 @@ async function searchSpotifyTrack(queryText) {
 
       if(likeBtn) toggleReaction(likeBtn.dataset.id, "like");
       if(dislikeBtn) toggleReaction(dislikeBtn.dataset.id, "dislike");
+      if(favBtn) toggleFavorite(favBtn.dataset.id);
+      if(copyBtn) copyPoemFormatted(copyBtn.dataset.id);
+
+      if(editBtn){
+        const id = editBtn.dataset.id;
+        const poem = poemsCache[id];
+        if(poem && currentUser && poem.authorUid === currentUser.uid){
+          editingPoemId = id;
+          reRenderPoemViews();
+        }
+      }
+
+      if(cancelEditBtn){
+        editingPoemId = null;
+        reRenderPoemViews();
+      }
+
+      if(saveEditBtn){
+        const id = saveEditBtn.dataset.id;
+        const card = container.querySelector(`[data-poem-id="${id}"]`);
+        const titleField = card && card.querySelector(".edit-title-input");
+        const contentField = card && card.querySelector(".edit-content-input");
+        savePoemEdit(id, titleField ? titleField.value : "", contentField ? contentField.value : "");
+      }
 
       if(deleteBtn){
         const id = deleteBtn.dataset.id;
         const poem = poemsCache[id];
         if(poem && currentUser && poem.authorUid === currentUser.uid){
           if(confirm("¿seguro que quieres eliminar este poema? esta acción no se puede deshacer.")){
-            remove(ref(db, "poems/" + id)).catch((err) => console.error("no se pudo eliminar el poema:", err));
+            deletePoem(id);
           }
         }
       }
@@ -1943,6 +2195,7 @@ async function searchSpotifyTrack(queryText) {
   attachWallEvents(poemWall);
   attachWallEvents(document.getElementById("myPoemsList"));
   attachWallEvents(document.getElementById("userPoemsList"));
+  attachWallEvents(document.getElementById("myFavoritesList"));
 
   // ============================================================
   //  RENDER: MI PERFIL
@@ -1955,7 +2208,7 @@ async function searchSpotifyTrack(queryText) {
     const maxLikes = maxLikesFor(currentUser.uid);
 
     document.getElementById("myAvatar").innerHTML = avatarInner(myUserData);
-    document.getElementById("myName").textContent = myUserData.name;
+    document.getElementById("myNameText").textContent = myUserData.name;
     document.getElementById("myLevel").textContent = info.level;
     document.getElementById("myXp").textContent = myUserData.xp || 0;
     document.getElementById("myPoemCount").textContent = count;
@@ -1976,7 +2229,57 @@ async function searchSpotifyTrack(queryText) {
     list.innerHTML = myPoems.length
       ? myPoems.map(p => renderPoemCard(p, { hideAuthor: true })).join("")
       : `<div class="empty-state sans">todavía no has publicado ningún poema.</div>`;
+
+    // ---------- mi libreta de versos (favoritos) ----------
+    const favIds = Object.keys(myUserData.favorites || {});
+    const favPoems = favIds
+      .map(id => poemsCache[id])
+      .filter(Boolean)
+      .sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+
+    const favList = document.getElementById("myFavoritesList");
+    favList.innerHTML = favPoems.length
+      ? favPoems.map(p => renderPoemCard(p)).join("")
+      : `<div class="favorites-empty-hint sans">todavía no has guardado ningún poema. toca la estrella de un poema para añadirlo aquí.</div>`;
   }
+
+  // ============================================================
+  //  EDICIÓN DE NOMBRE DE PERFIL
+  // ============================================================
+  const btnEditName = document.getElementById("btnEditName");
+  const nameEditForm = document.getElementById("nameEditForm");
+  const nameEditInput = document.getElementById("nameEditInput");
+
+  btnEditName.addEventListener("click", () => {
+    if(!myUserData) return;
+    nameEditInput.value = myUserData.name || "";
+    nameEditForm.style.display = "flex";
+    nameEditInput.focus();
+  });
+
+  document.getElementById("btnCancelName").addEventListener("click", () => {
+    nameEditForm.style.display = "none";
+  });
+
+  document.getElementById("btnSaveName").addEventListener("click", async () => {
+    if(!currentUser) return;
+    const newName = nameEditInput.value.trim();
+    if(!newName){ nameEditInput.focus(); return; }
+    try{
+      await update(ref(db, `users/${currentUser.uid}`), { name: newName });
+      // mantiene consistencia con los poemas ya publicados (no anónimos) de este autor
+      const updates = {};
+      Object.values(poemsCache).forEach(p => {
+        if(p.authorUid === currentUser.uid && !p.pseudonym){
+          updates[`poems/${p.id}/authorName`] = newName;
+        }
+      });
+      if(Object.keys(updates).length) await update(ref(db), updates);
+      nameEditForm.style.display = "none";
+    }catch(err){
+      console.error("no se pudo actualizar el nombre:", err);
+    }
+  });
 
   document.getElementById("btnLogout").addEventListener("click", () => signOut(auth));
 
