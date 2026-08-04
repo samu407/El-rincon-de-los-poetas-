@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
 <style>
   :root{
@@ -746,6 +747,109 @@
     .user-chip .name{ display:none; }
   }
 
+  /* ================= TARJETA POSTAL (html2canvas) ================= */
+  #postcardStage{
+    position:fixed; left:-9999px; top:0; z-index:-1;
+  }
+  .postcard{
+    width:640px; padding:64px 56px; box-sizing:border-box;
+    font-family:'EB Garamond', serif;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; gap:28px;
+  }
+  .postcard.postcard-night{
+    background:
+      radial-gradient(ellipse 90% 60% at 50% -10%, rgba(192,132,252,0.10), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 90% 100%, rgba(201,169,97,0.08), transparent 60%),
+      #0e0e10;
+    color:#f2ede4;
+  }
+  .postcard-mark{ font-family:'Playfair Display', serif; font-style:italic; font-size:13px; letter-spacing:0.3em; text-transform:uppercase; color:#c9a961; opacity:0.85; }
+  .postcard-title{ font-family:'Playfair Display', serif; font-weight:600; font-size:1.6rem; margin:0; }
+  .postcard-content{ font-size:22px; line-height:1.9; white-space:pre-wrap; max-width:520px; }
+  .postcard-signature{ font-family:'Playfair Display', serif; font-style:italic; font-size:16px; color:#c9a961; margin-top:6px; }
+  .postcard-flourish{ font-size:13px; letter-spacing:0.5em; opacity:0.55; color:#c084fc; }
+
+  /* ================= RANKING: POETAS ILUSTRES ================= */
+  .ranking-list{ display:flex; flex-direction:column; gap:4px; max-width:480px; margin:0 auto; }
+  .ranking-item{
+    display:flex; align-items:center; gap:16px;
+    padding:16px 6px; border-bottom:1px solid var(--hairline);
+  }
+  .ranking-item:last-child{ border-bottom:none; }
+  .ranking-pos{
+    font-family:'Playfair Display', serif; font-style:italic; font-size:1.4rem; color:var(--ink-faint);
+    width:32px; text-align:center; flex-shrink:0;
+  }
+  .ranking-item:nth-child(1) .ranking-pos{ color:var(--gold); }
+  .ranking-item:nth-child(2) .ranking-pos{ color:#cfd4da; }
+  .ranking-item:nth-child(3) .ranking-pos{ color:#c98f5e; }
+  .ranking-info{ flex:1; min-width:0; }
+  .ranking-name{ font-family:'Inter', sans-serif; font-size:14px; color:var(--ink); font-weight:500; }
+  .ranking-meta{ font-family:'Inter', sans-serif; font-size:11px; color:var(--ink-faint); margin-top:2px; }
+  .ranking-xp{ font-family:'Playfair Display', serif; font-size:1.1rem; color:var(--gold); flex-shrink:0; white-space:nowrap; }
+  .ranking-empty{ text-align:center; padding:40px 0; color:var(--ink-faint); font-family:'Inter', sans-serif; font-size:13px; }
+
+  /* ================= ETIQUETAS / SENTIMIENTOS ================= */
+  .tag-select-row{ display:flex; flex-wrap:wrap; gap:8px; margin:-8px 0 22px; }
+  .tag-chip-option{
+    font-family:'Inter', sans-serif; font-size:12px; letter-spacing:0.03em;
+    padding:7px 14px; border-radius:100px; border:1px solid var(--hairline); color:var(--ink-faint);
+    cursor:pointer; transition:all 0.25s ease; background:transparent;
+  }
+  .tag-chip-option:hover{ border-color:var(--lavender-dim); color:var(--ink); }
+  .tag-chip-option.selected{ color:var(--lavender); border-color:var(--lavender-dim); background:var(--lavender-soft); }
+
+  .wall-filter-bar{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 34px; justify-content:center; }
+  .wall-filter-chip{
+    font-family:'Inter', sans-serif; font-size:12px; letter-spacing:0.03em;
+    padding:8px 16px; border-radius:100px; border:1px solid var(--hairline); color:var(--ink-faint);
+    cursor:pointer; transition:all 0.25s ease; background:transparent;
+  }
+  .wall-filter-chip:hover{ border-color:var(--gold); color:var(--ink); }
+  .wall-filter-chip.active{ color:var(--gold); border-color:rgba(201,169,97,0.4); background:var(--gold-soft); }
+  .poem-tag-badge{
+    display:inline-block; font-family:'Inter', sans-serif; font-size:10.5px; letter-spacing:0.04em;
+    color:var(--lavender); background:var(--lavender-soft); border:1px solid rgba(192,132,252,0.25);
+    padding:3px 10px; border-radius:100px; margin-bottom:16px;
+  }
+
+  /* ================= CAMPANA DE NOTIFICACIONES ================= */
+  .notif-bell-wrap{ position:relative; }
+  .notif-bell-btn{
+    background:transparent; border:1px solid var(--hairline); color:var(--ink-dim);
+    width:34px; height:34px; border-radius:50%; cursor:pointer; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; transition:all 0.3s ease; position:relative;
+  }
+  .notif-bell-btn:hover{ border-color:var(--lavender-dim); color:var(--lavender); }
+  .notif-bell-btn svg{ width:16px; height:16px; }
+  .notif-dot{
+    position:absolute; top:5px; right:6px; width:8px; height:8px; border-radius:50%;
+    background:var(--rose); border:1.5px solid var(--bg-deep);
+    display:none;
+  }
+  .notif-dot.show{ display:block; }
+
+  .notif-dropdown{
+    position:absolute; top:calc(100% + 10px); right:0;
+    background:var(--bg-panel-raised); border:1px solid var(--hairline); border-radius:14px;
+    box-shadow:var(--shadow-deep); width:300px; max-height:360px; overflow-y:auto;
+    opacity:0; visibility:hidden; transform:translateY(-6px); transition:all 0.25s ease; z-index:60;
+  }
+  .notif-dropdown.show{ opacity:1; visibility:visible; transform:translateY(0); }
+  .notif-item{
+    display:flex; gap:10px; padding:13px 16px; border-bottom:1px solid var(--hairline);
+    font-family:'Inter', sans-serif; cursor:default;
+  }
+  .notif-item:last-child{ border-bottom:none; }
+  .notif-item.unread{ background:var(--lavender-soft); }
+  .notif-item .text{ font-size:12.5px; color:var(--ink-dim); line-height:1.5; }
+  .notif-item .time{ font-size:10.5px; color:var(--ink-faint); margin-top:3px; }
+  .notif-empty{ padding:24px 16px; text-align:center; font-family:'Inter', sans-serif; font-size:12px; color:var(--ink-faint); }
+
+  /* ================= BOTÓN COMPARTIR IMAGEN EN LA TARJETA ================= */
+  .postcard-share-btn svg{ width:14px; height:14px; }
+
   a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
     outline:2px solid var(--lavender); outline-offset:3px;
   }
@@ -762,6 +866,16 @@
   </div>
 
   <div class="nav-right">
+    <button class="theme-toggle-btn" id="btnOpenRanking" title="poetas ilustres">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4a1 1 0 0 0-1 1v1a4 4 0 0 0 4 4M17 5h3a1 1 0 0 1 1 1v1a4 4 0 0 1-4 4"/></svg>
+    </button>
+    <div class="notif-bell-wrap">
+      <button class="theme-toggle-btn notif-bell-btn" id="notifBellBtn" title="notificaciones">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        <span class="notif-dot" id="notifDot"></span>
+      </button>
+      <div class="notif-dropdown" id="notifDropdown"></div>
+    </div>
     <button class="theme-toggle-btn" id="themeToggleBtn" title="cambiar tema">
       <svg id="themeToggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>
     </button>
@@ -770,6 +884,19 @@
     </div>
   </div>
 </nav>
+
+<!-- ============ ELEMENTO OCULTO PARA GENERAR TARJETAS POSTAL ============ -->
+<div id="postcardStage"></div>
+
+<!-- ============ MODAL: POETAS ILUSTRES ============ -->
+<div class="modal-overlay" id="rankingModal">
+  <div class="modal" style="max-width:520px;">
+    <button class="modal-close" id="rankingModalClose">&times;</button>
+    <h3 class="modal-title">poetas ilustres</h3>
+    <p class="modal-sub sans">las cinco almas con más experiencia acumulada en el espejo</p>
+    <div class="ranking-list" id="rankingList"></div>
+  </div>
+</div>
 
 <div class="shell">
 
@@ -825,6 +952,15 @@
       </div>
       <!-- ============================================================ -->
 
+      <!-- ============================================================ -->
+      <!--  ETIQUETA / SENTIMIENTO DEL POEMA                             -->
+      <!-- ============================================================ -->
+      <div class="field">
+        <label class="field-label sans">sentimiento <span style="opacity:0.6">(opcional)</span></label>
+        <div class="tag-select-row" id="tagSelectRow"></div>
+      </div>
+      <!-- ============================================================ -->
+
       <div class="publish-row">
         <span class="hint">publicar te da +25 xp</span>
         <button class="pill-btn sans" id="publishBtn">publicar</button>
@@ -840,6 +976,8 @@
     <div class="section-divider">
       <div class="line"></div><span class="mark">el muro</span><div class="line"></div>
     </div>
+
+    <div class="wall-filter-bar" id="wallFilterBar"></div>
 
     <main id="poemWall">
       <div class="empty-state sans">la página está en blanco. sé la primera voz.</div>
@@ -1075,6 +1213,9 @@
   let poemsUnsubscribe = null;     // función para desuscribirse del listener anterior de poemas
   let poemsHasMore = false;        // si probablemente hay más poemas por cargar
   let editingPoemId = null;        // poema que se está editando actualmente en línea
+  let activeWallFilter = null;     // etiqueta/sentimiento activo en el filtro del muro
+  let myNotifications = [];        // notificaciones del usuario actual
+  let notifUnsubscribe = null;     // función para desuscribirse del listener de notificaciones
   const THEME_KEY = "espejo_theme";
 
   const AVATAR_ICONS = {
@@ -1322,6 +1463,102 @@ async function searchSpotifyTrack(queryText) {
   });
 
   // ============================================================
+  //  RANKING: POETAS ILUSTRES (TOP 5 XP)
+  // ============================================================
+  const rankingModal = document.getElementById("rankingModal");
+
+  function renderRanking(){
+    const top = Object.entries(usersCache)
+      .map(([uid, u]) => ({ uid, ...u }))
+      .sort((a, b) => (b.xp || 0) - (a.xp || 0))
+      .slice(0, 5);
+
+    const list = document.getElementById("rankingList");
+    if(!top.length){
+      list.innerHTML = `<div class="ranking-empty sans">todavía no hay poetas registrados en el espejo.</div>`;
+      return;
+    }
+    list.innerHTML = top.map((u, i) => {
+      const info = levelInfo(u.xp);
+      return `
+        <div class="ranking-item">
+          <div class="ranking-pos">${i + 1}</div>
+          <div class="avatar-circle" style="width:38px;height:38px;">${avatarInner(u)}</div>
+          <div class="ranking-info">
+            <div class="ranking-name">${escapeHtml(u.name || "poeta anónimo")}</div>
+            <div class="ranking-meta">nivel ${info.level} · ${info.title}</div>
+          </div>
+          <div class="ranking-xp">${u.xp || 0} xp</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  document.getElementById("btnOpenRanking").addEventListener("click", () => {
+    renderRanking();
+    rankingModal.classList.add("show");
+  });
+  document.getElementById("rankingModalClose").addEventListener("click", () => rankingModal.classList.remove("show"));
+  rankingModal.addEventListener("click", (e) => { if(e.target === rankingModal) rankingModal.classList.remove("show"); });
+
+  // ============================================================
+  //  CAMPANA DE NOTIFICACIONES — ESCUCHA EN TIEMPO REAL
+  // ============================================================
+  const notifBellBtn = document.getElementById("notifBellBtn");
+  const notifDropdown = document.getElementById("notifDropdown");
+  const notifDot = document.getElementById("notifDot");
+
+  function attachNotificationsListener(uid){
+    if(notifUnsubscribe) notifUnsubscribe();
+    const notifRef = ref(db, `users/${uid}/notifications`);
+    notifUnsubscribe = onValue(notifRef, (snap) => {
+      const data = snap.val() || {};
+      myNotifications = Object.entries(data)
+        .map(([id, n]) => ({ id, ...n }))
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+      renderNotifDot();
+      if(notifDropdown.classList.contains("show")) renderNotifDropdown();
+    });
+  }
+
+  function renderNotifDot(){
+    const hasUnread = myNotifications.some(n => !n.read);
+    notifDot.classList.toggle("show", hasUnread);
+  }
+
+  function notifText(n){
+    const who = n.fromName || "alguien";
+    if(n.type === "like") return `a <b>${escapeHtml(who)}</b> le gustó tu poema${n.poemTitle ? ` «${escapeHtml(n.poemTitle)}»` : ""}.`;
+    if(n.type === "comment") return `<b>${escapeHtml(who)}</b> comentó tu verso${n.poemTitle ? ` «${escapeHtml(n.poemTitle)}»` : ""}.`;
+    return "tienes una nueva interacción.";
+  }
+
+  function renderNotifDropdown(){
+    notifDropdown.innerHTML = myNotifications.length
+      ? myNotifications.slice(0, 20).map(n => `
+          <div class="notif-item ${n.read ? "" : "unread"}">
+            <div class="text">${notifText(n)}<div class="time">${timeAgo(n.timestamp)}</div></div>
+          </div>
+        `).join("")
+      : `<div class="notif-empty">todavía no tienes notificaciones.</div>`;
+  }
+
+  notifBellBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const willShow = !notifDropdown.classList.contains("show");
+    notifDropdown.classList.toggle("show", willShow);
+    if(willShow){
+      renderNotifDropdown();
+      if(currentUser){
+        const updates = {};
+        myNotifications.forEach(n => { if(!n.read) updates[`users/${currentUser.uid}/notifications/${n.id}/read`] = true; });
+        if(Object.keys(updates).length) update(ref(db), updates);
+      }
+    }
+  });
+  document.addEventListener("click", () => notifDropdown.classList.remove("show"));
+
+  // ============================================================
   //  NAVEGACIÓN ENTRE VISTAS
   // ============================================================
   function showView(name){
@@ -1335,6 +1572,14 @@ async function searchSpotifyTrack(queryText) {
   });
 
   document.getElementById("navLogo").addEventListener("click", () => showView("wall"));
+
+  document.getElementById("wallFilterBar").addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-filter-tag]");
+    if(!chip) return;
+    const tag = chip.dataset.filterTag;
+    activeWallFilter = tag || null;
+    renderWall();
+  });
 
   document.getElementById("btnAboutCreator").addEventListener("click", () => {
     renderAboutView();
@@ -1570,10 +1815,14 @@ async function searchSpotifyTrack(queryText) {
           openOnboardingModal();
         }
       });
+      attachNotificationsListener(user.uid);
     }else{
       myUserData = null;
       myPreviousLevel = null;
       myUnlockedBadges = new Set();
+      myNotifications = [];
+      renderNotifDot();
+      if(notifUnsubscribe){ notifUnsubscribe(); notifUnsubscribe = null; }
       renderNavAuth();
       renderComposerState();
       renderWall();
@@ -1706,6 +1955,23 @@ async function searchSpotifyTrack(queryText) {
     if(pseudonymToggle.checked) pseudonymInput.focus();
   });
 
+  // ---------- etiqueta / sentimiento al publicar ----------
+  const POEM_TAGS = ["Amor", "Desamor", "Nostalgia", "Soledad", "Filosofía"];
+  let selectedTag = null;
+  const tagSelectRow = document.getElementById("tagSelectRow");
+  tagSelectRow.innerHTML = POEM_TAGS.map(tag =>
+    `<button type="button" class="tag-chip-option" data-tag="${escapeAttr(tag)}">#${escapeHtml(tag)}</button>`
+  ).join("");
+  tagSelectRow.addEventListener("click", (e) => {
+    const btn = e.target.closest(".tag-chip-option");
+    if(!btn) return;
+    const tag = btn.dataset.tag;
+    selectedTag = selectedTag === tag ? null : tag;
+    tagSelectRow.querySelectorAll(".tag-chip-option").forEach(b => {
+      b.classList.toggle("selected", b.dataset.tag === selectedTag);
+    });
+  });
+
   function showError(text){
     errorMsg.textContent = text;
     errorMsg.classList.add("show");
@@ -1732,6 +1998,7 @@ async function searchSpotifyTrack(queryText) {
         authorPhotoURL: usePseudonym ? null : (myUserData.photoURL || null),
         authorAvatarIcon: usePseudonym ? "moon" : (myUserData.avatarIcon || "feather"),
         pseudonym: usePseudonym,
+        category: selectedTag || null,
         timestamp: Date.now(),
         music: selectedSpotifyTrack || null, // Guardamos la música seleccionada
         reactions: {},
@@ -1743,6 +2010,8 @@ async function searchSpotifyTrack(queryText) {
       pseudonymToggle.checked = false;
       pseudonymInput.value = "";
       pseudonymInput.style.display = "none";
+      selectedTag = null;
+      tagSelectRow.querySelectorAll(".tag-chip-option").forEach(b => b.classList.remove("selected"));
       selectedSpotifyTrack = null;
       if (selectedTrackPreview) selectedTrackPreview.innerHTML = "";
     }catch(err){
@@ -1758,6 +2027,22 @@ async function searchSpotifyTrack(queryText) {
   contentInput.addEventListener("keydown", (e) => { if(e.key === "Enter" && (e.metaKey || e.ctrlKey)) publishPoem(); });
 
   // ============================================================
+  //  NOTIFICACIONES EN TIEMPO REAL
+  // ============================================================
+  async function pushNotification(authorUid, data){
+    if(!authorUid || authorUid === currentUser.uid) return; // no notificarse a uno mismo
+    try{
+      await push(ref(db, `users/${authorUid}/notifications`), {
+        ...data,
+        read: false,
+        timestamp: Date.now()
+      });
+    }catch(err){
+      console.error("no se pudo guardar la notificación:", err);
+    }
+  }
+
+  // ============================================================
   //  REACCIONES
   // ============================================================
   async function toggleReaction(poemId, type){
@@ -1769,6 +2054,15 @@ async function searchSpotifyTrack(queryText) {
       await remove(reactionRef);
     }else{
       await set(reactionRef, type);
+      if(type === "like" && poem){
+        pushNotification(poem.authorUid, {
+          type: "like",
+          fromUid: currentUser.uid,
+          fromName: (myUserData && myUserData.name) || "alguien",
+          poemId,
+          poemTitle: poem.title || ""
+        });
+      }
     }
   }
 
@@ -1830,6 +2124,86 @@ async function searchSpotifyTrack(queryText) {
       if(done) done();
     }catch(err){
       console.error("no se pudo copiar el poema:", err);
+    }
+  }
+
+  // ============================================================
+  //  TARJETA POSTAL / IMAGEN PARA COMPARTIR (html2canvas)
+  // ============================================================
+  const postcardStage = document.getElementById("postcardStage");
+
+  async function sharePoemAsImage(poemId){
+    const poem = poemsCache[poemId];
+    if(!poem || typeof html2canvas === "undefined") return;
+
+    const shareBtn = document.querySelector(`[data-action="share-image"][data-id="${poemId}"]`);
+    const originalBtnHtml = shareBtn ? shareBtn.innerHTML : null;
+    if(shareBtn) shareBtn.innerHTML = "generando...";
+
+    const authorUser = usersCache[poem.authorUid];
+    const signatureName = poem.pseudonym
+      ? (poem.authorName || "un alma enigmática")
+      : ((authorUser && authorUser.name) || poem.authorName || "anónimo");
+    const isCandle = document.documentElement.getAttribute("data-theme") === "candle";
+
+    const postcard = document.createElement("div");
+    postcard.className = `postcard ${isCandle ? "postcard-candle" : "postcard-night"}`;
+    if(isCandle){
+      postcard.style.background = "linear-gradient(180deg, #f3ead9, #ede1cb)";
+      postcard.style.color = "#3b2f22";
+    }
+    postcard.innerHTML = `
+      <div class="postcard-mark">el espejo de las almas</div>
+      ${poem.title ? `<h2 class="postcard-title">${escapeHtml(poem.title)}</h2>` : ""}
+      <p class="postcard-content">${escapeHtml(poem.content)}</p>
+      <div class="postcard-signature">— ${escapeHtml(signatureName)}</div>
+      <div class="postcard-flourish">⁘</div>
+    `;
+    postcardStage.innerHTML = "";
+    postcardStage.appendChild(postcard);
+
+    try{
+      const canvas = await html2canvas(postcard, {
+        backgroundColor: isCandle ? "#f3ead9" : "#0e0e10",
+        scale: 2,
+        useCORS: true
+      });
+
+      canvas.toBlob(async (blob) => {
+        if(!blob){
+          if(shareBtn) shareBtn.innerHTML = originalBtnHtml;
+          return;
+        }
+        const fileName = `poema-${poemId}.png`;
+        const file = new File([blob], fileName, { type: "image/png" });
+
+        if(navigator.share && navigator.canShare && navigator.canShare({ files: [file] })){
+          try{
+            await navigator.share({
+              files: [file],
+              title: poem.title || "un poema del espejo de las almas",
+              text: "escrito en el espejo de las almas"
+            });
+          }catch(err){
+            if(err && err.name !== "AbortError") console.error("no se pudo compartir la imagen:", err);
+          }
+        }else{
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 4000);
+        }
+        if(shareBtn) shareBtn.innerHTML = originalBtnHtml;
+      }, "image/png");
+    }catch(err){
+      console.error("no se pudo generar la imagen del poema:", err);
+      if(shareBtn) shareBtn.innerHTML = originalBtnHtml;
+    }finally{
+      postcardStage.innerHTML = "";
     }
   }
 
@@ -1902,6 +2276,16 @@ async function searchSpotifyTrack(queryText) {
       text: text.trim(),
       timestamp: Date.now()
     });
+    const poem = poemsCache[poemId];
+    if(poem){
+      pushNotification(poem.authorUid, {
+        type: "comment",
+        fromUid: currentUser.uid,
+        fromName: myUserData.name || "alguien",
+        poemId,
+        poemTitle: poem.title || ""
+      });
+    }
   }
 
   // ============================================================
@@ -2001,6 +2385,7 @@ async function searchSpotifyTrack(queryText) {
         </div>
       </div>
     ` : `
+      ${poem.category ? `<span class="poem-tag-badge">#${escapeHtml(poem.category)}</span>` : ""}
       ${poem.title ? `<h2 class="poem-title">${escapeHtml(poem.title)}</h2>` : ""}
       <p class="poem-content">${escapeHtml(poem.content)}</p>
     `;
@@ -2029,6 +2414,9 @@ async function searchSpotifyTrack(queryText) {
           </button>
           <button class="react-btn" data-action="copy-poem" data-id="${poem.id}" title="copiar / compartir">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+          <button class="react-btn postcard-share-btn" data-action="share-image" data-id="${poem.id}" title="compartir como imagen">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 16l-4.5-4.5a2 2 0 0 0-2.8 0L9 16"/></svg>
           </button>
           <button class="comment-toggle" data-action="toggle-comments" data-id="${poem.id}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.5 9 9 0 0 1-3.5-.7L3 21l1.8-5a8.4 8.4 0 0 1-.8-3.5A8.4 8.4 0 0 1 12.9 3 8.5 8.5 0 0 1 21 11.5Z"/></svg>
@@ -2066,7 +2454,18 @@ async function searchSpotifyTrack(queryText) {
     return getFeaturedPoemId._randomId;
   }
 
+  function renderWallFilterBar(){
+    const bar = document.getElementById("wallFilterBar");
+    if(!bar) return;
+    bar.innerHTML = `<button class="wall-filter-chip ${!activeWallFilter ? "active" : ""}" data-filter-tag="">todos</button>` +
+      POEM_TAGS.map(tag =>
+        `<button class="wall-filter-chip ${activeWallFilter === tag ? "active" : ""}" data-filter-tag="${escapeAttr(tag)}">#${escapeHtml(tag)}</button>`
+      ).join("");
+  }
+
   function renderWall(){
+    renderWallFilterBar();
+
     if(!currentUser){
       poemWall.innerHTML = `
         <div class="wall-locked">
@@ -2082,9 +2481,14 @@ async function searchSpotifyTrack(queryText) {
       return;
     }
 
-    const poems = Object.values(poemsCache).sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+    let poems = Object.values(poemsCache).sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+    if(activeWallFilter){
+      poems = poems.filter(p => p.category === activeWallFilter);
+    }
     if(!poems.length){
-      poemWall.innerHTML = `<div class="empty-state sans">la página está en blanco. sé la primera voz.</div>`;
+      poemWall.innerHTML = activeWallFilter
+        ? `<div class="empty-state sans">nadie ha escrito todavía bajo #${escapeHtml(activeWallFilter)}.</div>`
+        : `<div class="empty-state sans">la página está en blanco. sé la primera voz.</div>`;
       return;
     }
 
@@ -2092,7 +2496,7 @@ async function searchSpotifyTrack(queryText) {
       ? `<div class="load-more-wrap"><button class="btn-load-more sans" id="btnLoadMorePoems">cargar más poemas</button></div>`
       : "";
 
-    const featuredId = getFeaturedPoemId(poems);
+    const featuredId = !activeWallFilter ? getFeaturedPoemId(poems) : null;
     const featuredHtml = featuredId
       ? renderPoemCard(poemsCache[featuredId], { isFeatured: true })
       : "";
@@ -2115,6 +2519,7 @@ async function searchSpotifyTrack(queryText) {
       const dislikeBtn = e.target.closest('[data-action="dislike"]');
       const favBtn = e.target.closest('[data-action="toggle-favorite"]');
       const copyBtn = e.target.closest('[data-action="copy-poem"]');
+      const shareImageBtn = e.target.closest('[data-action="share-image"]');
       const editBtn = e.target.closest('[data-action="edit-poem"]');
       const saveEditBtn = e.target.closest('[data-action="save-edit-poem"]');
       const cancelEditBtn = e.target.closest('[data-action="cancel-edit-poem"]');
@@ -2127,6 +2532,7 @@ async function searchSpotifyTrack(queryText) {
       if(dislikeBtn) toggleReaction(dislikeBtn.dataset.id, "dislike");
       if(favBtn) toggleFavorite(favBtn.dataset.id);
       if(copyBtn) copyPoemFormatted(copyBtn.dataset.id);
+      if(shareImageBtn) sharePoemAsImage(shareImageBtn.dataset.id);
 
       if(editBtn){
         const id = editBtn.dataset.id;
