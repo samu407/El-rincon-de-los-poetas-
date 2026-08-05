@@ -1262,6 +1262,40 @@
   </div>
 </div>
 
+<!-- ============ MODAL: ESCRIBIR CARTA ANÓNIMA (BOTELLA) ============ -->
+<div class="modal-overlay" id="bottleComposeModal">
+  <div class="modal">
+    <button class="modal-close" id="bottleComposeClose">&times;</button>
+    <h2 class="modal-title">mensaje en una botella</h2>
+    <p class="modal-sub">escribe una carta anónima. el mar del espejo la llevará a otra alma al azar, y nunca sabrá que fuiste tú.</p>
+    <textarea class="bottle-compose-textarea" id="bottleComposeText" placeholder="querida alma que me lees..."></textarea>
+    <div class="error-msg sans" id="bottleComposeError" style="margin-top:10px;"></div>
+    <button class="pill-btn sans" id="btnSendBottle" style="width:100%; margin-top:16px;">soltar la botella al mar</button>
+  </div>
+</div>
+
+<!-- ============ MODAL: CHAT PRIVADO ============ -->
+<div class="modal-overlay chat-modal" id="chatModal">
+  <div class="modal">
+    <button class="modal-close" id="chatModalClose">&times;</button>
+    <div class="chat-header">
+      <div class="avatar-circle" style="width:36px;height:36px;" id="chatModalAvatar"></div>
+      <span class="name" id="chatModalName"></span>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-row">
+      <input type="text" id="chatInput" placeholder="escribe un mensaje..." autocomplete="off">
+      <button class="pill-btn sans" id="btnSendChat">enviar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SOBRE FLOTANTE: NUEVA CARTA EN LA BOTELLA ============ -->
+<div class="bottle-toast" id="bottleToast">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 6 10-6"/></svg>
+  <span class="bottle-toast-text sans">te ha llegado una carta en una botella</span>
+</div>
+
 <!-- ============ LEVEL UP OVERLAY ============ -->
 <div class="levelup-overlay" id="levelUpOverlay">
   <div class="levelup-card">
@@ -1340,6 +1374,14 @@
   let activeWallFilter = null;     // etiqueta/sentimiento activo en el filtro del muro
   let myNotifications = [];        // notificaciones del usuario actual
   let notifUnsubscribe = null;     // función para desuscribirse del listener de notificaciones
+  let weeklyChallenge = null;      // reto poético de la semana ({theme, tag, updatedAt})
+  let suspirosCache = {};          // id -> suspiro (poema efímero de 24h)
+  let bottleMessages = [];         // cartas anónimas recibidas en la botella
+  let bottleUnsubscribe = null;    // función para desuscribirse del listener de la botella
+  const bottleToastShownIds = new Set(); // ids de cartas ya notificadas con el sobre flotante
+  let activeChatId = null;         // id de la conversación de chat privado abierta
+  let activeChatUid = null;        // uid del poeta con quien se conversa
+  let chatUnsubscribe = null;      // función para desuscribirse del listener del chat activo
   const THEME_KEY = "espejo_theme";
 
   const AVATAR_ICONS = {
@@ -1940,6 +1982,7 @@ async function searchSpotifyTrack(queryText) {
         }
       });
       attachNotificationsListener(user.uid);
+      attachBottleListener(user.uid);
     }else{
       myUserData = null;
       myPreviousLevel = null;
@@ -1947,6 +1990,9 @@ async function searchSpotifyTrack(queryText) {
       myNotifications = [];
       renderNotifDot();
       if(notifUnsubscribe){ notifUnsubscribe(); notifUnsubscribe = null; }
+      bottleMessages = [];
+      renderBottleDot();
+      if(bottleUnsubscribe){ bottleUnsubscribe(); bottleUnsubscribe = null; }
       renderNavAuth();
       renderComposerState();
       renderWall();
@@ -1957,6 +2003,8 @@ async function searchSpotifyTrack(queryText) {
     const canCompose = !!currentUser && !!myUserData && !!myUserData.onboardingCompleted;
     document.getElementById("composerLoggedIn").style.display = canCompose ? "block" : "none";
     document.getElementById("composerLoggedOut").style.display = currentUser ? "none" : "block";
+    renderSuspiros();
+    renderChallengeBanner();
   }
 
   // ============================================================
@@ -2844,6 +2892,7 @@ async function searchSpotifyTrack(queryText) {
       document.getElementById("userBadges").innerHTML = "";
       document.getElementById("userPoemsList").innerHTML =
         `<div class="empty-state sans">el poeta buscado no existe o ha cambiado de perfil.</div>`;
+      document.getElementById("btnOpenChat").style.display = "none";
       return;
     }
     const info = levelInfo(user.xp);
@@ -2855,6 +2904,9 @@ async function searchSpotifyTrack(queryText) {
     document.getElementById("userLevel").textContent = info.level;
     document.getElementById("userXp").textContent = user.xp || 0;
     document.getElementById("userPoemCount").textContent = count;
+
+    const canChat = !!currentUser && currentUser.uid !== viewingUid;
+    document.getElementById("btnOpenChat").style.display = canChat ? "inline-block" : "none";
 
     document.getElementById("userBadgeIcons").innerHTML = renderBadgeIconsInline(viewingUid);
     document.getElementById("userBadges").innerHTML = getBadges(user, count, maxLikes).map(b =>
@@ -2940,6 +2992,424 @@ async function searchSpotifyTrack(queryText) {
     }catch(err){
       console.error(err);
     }
+  });
+
+  // ============================================================
+  //  DESAFÍO POÉTICO SEMANAL
+  // ============================================================
+  const challengeBanner = document.getElementById("challengeBanner");
+
+  onValue(ref(db, "site/weeklyChallenge"), (snap) => {
+    weeklyChallenge = snap.val();
+    renderChallengeBanner();
+  });
+
+  function renderChallengeBanner(){
+    if(!challengeBanner) return;
+    const hasChallenge = !!(weeklyChallenge && weeklyChallenge.theme);
+
+    if(!hasChallenge && !isCreatorLoggedIn()){
+      challengeBanner.style.display = "none";
+      challengeBanner.innerHTML = "";
+      return;
+    }
+
+    challengeBanner.style.display = "flex";
+    challengeBanner.innerHTML = hasChallenge ? `
+      <div class="challenge-text">
+        <span class="challenge-eyebrow sans">✦ reto de la semana</span>
+        <p>${escapeHtml(weeklyChallenge.theme)}</p>
+      </div>
+      <div class="challenge-actions">
+        <button class="pill-btn sans" id="btnJoinChallenge">participar</button>
+        ${isCreatorLoggedIn() ? `<button class="link-btn" id="btnSetChallenge">editar</button>` : ""}
+      </div>
+    ` : `
+      <div class="challenge-text">
+        <span class="challenge-eyebrow sans">✦ desafío semanal</span>
+        <p>todavía no has propuesto un reto esta semana.</p>
+      </div>
+      <div class="challenge-actions">
+        <button class="pill-btn sans" id="btnSetChallenge">proponer un reto</button>
+      </div>
+    `;
+
+    const setBtn = document.getElementById("btnSetChallenge");
+    if(setBtn){
+      setBtn.addEventListener("click", async () => {
+        const current = (weeklyChallenge && weeklyChallenge.theme) || "";
+        const text = prompt("escribe el tema del reto de esta semana (ej. «escribe sobre la distancia usando la palabra 'niebla'»):", current);
+        if(text === null) return;
+        const trimmed = text.trim();
+        try{
+          if(trimmed){
+            await set(ref(db, "site/weeklyChallenge"), { theme: trimmed, tag: "DesafíoSemanal", updatedAt: Date.now() });
+          }else{
+            await remove(ref(db, "site/weeklyChallenge"));
+          }
+        }catch(err){
+          console.error("no se pudo guardar el desafío semanal:", err);
+        }
+      });
+    }
+
+    const joinBtn = document.getElementById("btnJoinChallenge");
+    if(joinBtn){
+      joinBtn.addEventListener("click", () => {
+        if(!currentUser){ openLoginModal(); return; }
+        showView("wall");
+        selectedTag = "DesafíoSemanal";
+        tagSelectRow.querySelectorAll(".tag-chip-option").forEach(b => b.classList.remove("selected"));
+        setTimeout(() => {
+          contentInput.focus();
+          document.getElementById("composerLoggedIn").scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 80);
+      });
+    }
+  }
+
+  // ============================================================
+  //  SUSPIROS / POEMAS EFÍMEROS (24 HORAS)
+  // ============================================================
+  const SUSPIRO_TTL_MS = 86400000; // 24 horas
+  const suspirosSection = document.getElementById("suspirosSection");
+  const suspirosStrip = document.getElementById("suspirosStrip");
+  const suspiroInput = document.getElementById("suspiroInput");
+  const btnSendSuspiro = document.getElementById("btnSendSuspiro");
+
+  function renderSuspiros(){
+    if(!suspirosSection) return;
+    if(!currentUser){ suspirosSection.style.display = "none"; return; }
+    suspirosSection.style.display = "block";
+
+    const now = Date.now();
+    const active = Object.values(suspirosCache)
+      .filter(s => now - (s.timestamp || 0) < SUSPIRO_TTL_MS)
+      .sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+
+    suspirosStrip.innerHTML = active.length
+      ? active.map(s => {
+          const author = usersCache[s.authorUid] || {};
+          const remainingMs = SUSPIRO_TTL_MS - (now - (s.timestamp || 0));
+          const remainingH = Math.max(1, Math.round(remainingMs / 3600000));
+          return `
+            <div class="suspiro-card" title="${escapeAttr(s.content)}">
+              <div class="avatar-circle" style="width:34px;height:34px;">${avatarInner(author)}</div>
+              <p class="suspiro-text">${escapeHtml(s.content)}</p>
+              <span class="suspiro-time">se desvanece en ${remainingH}h</span>
+            </div>
+          `;
+        }).join("")
+      : `<div class="suspiro-empty sans">nadie ha dejado un suspiro todavía. sé el primero.</div>`;
+  }
+
+  onValue(ref(db, "suspiros"), (snap) => {
+    const data = snap.val() || {};
+    suspirosCache = {};
+    Object.entries(data).forEach(([id, s]) => { suspirosCache[id] = { id, ...s }; });
+    renderSuspiros();
+  });
+
+  // vuelve a filtrar cada minuto para ocultar los suspiros que ya cumplieron 24h
+  setInterval(renderSuspiros, 60000);
+
+  async function sendSuspiro(){
+    if(!currentUser || !myUserData){ openLoginModal(); return; }
+    const text = suspiroInput.value.trim();
+    if(!text) return;
+    btnSendSuspiro.disabled = true;
+    try{
+      await push(ref(db, "suspiros"), {
+        authorUid: currentUser.uid,
+        content: text,
+        timestamp: Date.now()
+      });
+      suspiroInput.value = "";
+    }catch(err){
+      console.error("no se pudo publicar el suspiro:", err);
+    }finally{
+      btnSendSuspiro.disabled = false;
+    }
+  }
+  btnSendSuspiro.addEventListener("click", sendSuspiro);
+  suspiroInput.addEventListener("keydown", (e) => { if(e.key === "Enter"){ e.preventDefault(); sendSuspiro(); } });
+
+  // ============================================================
+  //  CARTAS ANÓNIMAS / MENSAJE EN UNA BOTELLA
+  // ============================================================
+  const bottleBtn = document.getElementById("bottleBtn");
+  const bottleDot = document.getElementById("bottleDot");
+  const bottleDropdown = document.getElementById("bottleDropdown");
+  const bottleComposeModal = document.getElementById("bottleComposeModal");
+  const bottleToast = document.getElementById("bottleToast");
+
+  function attachBottleListener(uid){
+    if(bottleUnsubscribe) bottleUnsubscribe();
+    bottleUnsubscribe = onValue(ref(db, `users/${uid}/bottle_messages`), (snap) => {
+      const data = snap.val() || {};
+      bottleMessages = Object.entries(data)
+        .map(([id, m]) => ({ id, ...m }))
+        .sort((a,b) => (b.timestamp||0) - (a.timestamp||0));
+      renderBottleDot();
+      if(bottleDropdown.classList.contains("show")) renderBottleDropdown();
+      maybeShowBottleToast();
+    });
+  }
+
+  function renderBottleDot(){
+    const hasUnread = bottleMessages.some(m => !m.read);
+    bottleDot.classList.toggle("show", hasUnread);
+  }
+
+  function renderBottleDropdown(){
+    bottleDropdown.innerHTML = `
+      <button class="link-btn bottle-dropdown-write sans" id="btnWriteBottle">✎ escribir una carta anónima</button>
+      ${bottleMessages.length
+        ? bottleMessages.slice(0, 20).map(m => `
+            <div class="notif-item ${m.read ? "" : "unread"}">
+              <div class="text">${escapeHtml(m.content)}<div class="time">${timeAgo(m.timestamp)}</div></div>
+            </div>
+          `).join("")
+        : `<div class="bottle-empty sans">todavía no ha llegado ninguna botella hasta tu orilla.</div>`}
+    `;
+    const writeBtn = document.getElementById("btnWriteBottle");
+    if(writeBtn){
+      writeBtn.addEventListener("click", () => {
+        bottleDropdown.classList.remove("show");
+        openBottleComposeModal();
+      });
+    }
+  }
+
+  bottleBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if(!currentUser){ openLoginModal(); return; }
+    const willShow = !bottleDropdown.classList.contains("show");
+    bottleDropdown.classList.toggle("show", willShow);
+    if(willShow){
+      renderBottleDropdown();
+      const updates = {};
+      bottleMessages.forEach(m => { if(!m.read) updates[`users/${currentUser.uid}/bottle_messages/${m.id}/read`] = true; });
+      if(Object.keys(updates).length) update(ref(db), updates);
+    }
+  });
+  document.addEventListener("click", () => bottleDropdown.classList.remove("show"));
+
+  function openBottleComposeModal(){
+    if(!currentUser){ openLoginModal(); return; }
+    document.getElementById("bottleComposeText").value = "";
+    document.getElementById("bottleComposeError").textContent = "";
+    bottleComposeModal.classList.add("show");
+  }
+  function closeBottleComposeModal(){ bottleComposeModal.classList.remove("show"); }
+
+  document.getElementById("bottleComposeClose").addEventListener("click", closeBottleComposeModal);
+  bottleComposeModal.addEventListener("click", (e) => { if(e.target === bottleComposeModal) closeBottleComposeModal(); });
+
+  document.getElementById("btnSendBottle").addEventListener("click", async () => {
+    if(!currentUser){ openLoginModal(); return; }
+    const text = document.getElementById("bottleComposeText").value.trim();
+    const errEl = document.getElementById("bottleComposeError");
+    errEl.textContent = "";
+    if(!text){ errEl.textContent = "escribe algo antes de soltar la botella al mar."; return; }
+
+    const candidates = Object.keys(usersCache).filter(uid => uid !== currentUser.uid);
+    if(!candidates.length){ errEl.textContent = "todavía no hay más almas en el espejo para recibir tu carta."; return; }
+    const destinatarioUid = candidates[Math.floor(Math.random() * candidates.length)];
+
+    try{
+      await push(ref(db, `users/${destinatarioUid}/bottle_messages`), {
+        content: text,
+        timestamp: Date.now(),
+        read: false
+      });
+      closeBottleComposeModal();
+    }catch(err){
+      console.error("no se pudo enviar la carta:", err);
+      errEl.textContent = "no se pudo enviar la carta. inténtalo de nuevo.";
+    }
+  });
+
+  function maybeShowBottleToast(){
+    const unread = bottleMessages.filter(m => !m.read);
+    const newest = unread[0];
+    if(newest && !bottleToastShownIds.has(newest.id)){
+      bottleToastShownIds.add(newest.id);
+      bottleToast.classList.add("show");
+      setTimeout(() => bottleToast.classList.remove("show"), 4200);
+    }
+  }
+  bottleToast.addEventListener("click", () => {
+    bottleToast.classList.remove("show");
+    if(!currentUser) return;
+    bottleDropdown.classList.add("show");
+    renderBottleDropdown();
+  });
+
+  // ============================================================
+  //  CHAT PRIVADO EN TIEMPO REAL
+  // ============================================================
+  const chatModal = document.getElementById("chatModal");
+  const chatMessagesBox = document.getElementById("chatMessages");
+  const chatInput = document.getElementById("chatInput");
+
+  function chatIdFor(uidA, uidB){ return [uidA, uidB].sort().join("_"); }
+
+  function openChat(uid){
+    if(!currentUser){ openLoginModal(); return; }
+    if(uid === currentUser.uid) return;
+    activeChatUid = uid;
+    activeChatId = chatIdFor(currentUser.uid, uid);
+
+    const user = usersCache[uid] || {};
+    document.getElementById("chatModalAvatar").innerHTML = avatarInner(user);
+    document.getElementById("chatModalName").textContent = user.name || "poeta";
+    chatMessagesBox.innerHTML = `<div class="chat-empty sans">cargando conversación...</div>`;
+    chatModal.classList.add("show");
+    chatInput.value = "";
+
+    if(chatUnsubscribe) chatUnsubscribe();
+    chatUnsubscribe = onValue(ref(db, `chats/${activeChatId}/messages`), (snap) => {
+      const data = snap.val() || {};
+      const messages = Object.entries(data)
+        .map(([id, m]) => ({ id, ...m }))
+        .sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
+      renderChatMessages(messages);
+    });
+  }
+
+  function closeChat(){
+    chatModal.classList.remove("show");
+    if(chatUnsubscribe){ chatUnsubscribe(); chatUnsubscribe = null; }
+    activeChatId = null;
+    activeChatUid = null;
+  }
+
+  function renderChatMessages(messages){
+    chatMessagesBox.innerHTML = messages.length
+      ? messages.map(m => `
+          <div class="chat-bubble ${currentUser && m.senderUid === currentUser.uid ? "mine" : "theirs"}">
+            <p>${escapeHtml(m.text)}</p>
+            <span class="chat-time">${timeAgo(m.timestamp)}</span>
+          </div>
+        `).join("")
+      : `<div class="chat-empty sans">todavía no hay mensajes. escribe el primero.</div>`;
+    chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight;
+  }
+
+  async function sendChatMessage(){
+    if(!currentUser || !activeChatId) return;
+    const text = chatInput.value.trim();
+    if(!text) return;
+    chatInput.value = "";
+    try{
+      await push(ref(db, `chats/${activeChatId}/messages`), {
+        senderUid: currentUser.uid,
+        text: text,
+        timestamp: Date.now()
+      });
+    }catch(err){
+      console.error("no se pudo enviar el mensaje:", err);
+    }
+  }
+
+  document.getElementById("chatModalClose").addEventListener("click", closeChat);
+  chatModal.addEventListener("click", (e) => { if(e.target === chatModal) closeChat(); });
+  document.getElementById("btnSendChat").addEventListener("click", sendChatMessage);
+  chatInput.addEventListener("keydown", (e) => { if(e.key === "Enter"){ e.preventDefault(); sendChatMessage(); } });
+
+  document.getElementById("btnOpenChat").addEventListener("click", () => {
+    if(viewingUid) openChat(viewingUid);
+  });
+
+  // ============================================================
+  //  EXPORTAR POEMARIO A PDF (jsPDF)
+  // ============================================================
+  document.getElementById("btnExportPdf").addEventListener("click", () => {
+    if(!currentUser || !myUserData) return;
+    const { jsPDF } = window.jspdf || {};
+    if(!jsPDF){ alert("no se pudo cargar el generador de PDF. inténtalo de nuevo en unos segundos."); return; }
+
+    const myPoems = Object.values(poemsCache)
+      .filter(p => p.authorUid === currentUser.uid)
+      .sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
+
+    if(!myPoems.length){ alert("todavía no has publicado ningún poema para incluir en tu poemario."); return; }
+
+    const doc = new jsPDF({ unit: "pt", format: "a5" });
+    const pageW = doc.internal.pageSize.getWidth();
+    const pageH = doc.internal.pageSize.getHeight();
+    const margin = 56;
+    const maxWidth = pageW - margin * 2;
+    let pageNumber = 1;
+
+    function addPageNumber(){
+      doc.setFont("times", "italic");
+      doc.setFontSize(9);
+      doc.setTextColor(140, 130, 120);
+      doc.text(String(pageNumber), pageW / 2, pageH - 28, { align: "center" });
+      pageNumber++;
+    }
+
+    // ---------- portada ----------
+    doc.setFillColor(20, 18, 22);
+    doc.rect(0, 0, pageW, pageH, "F");
+    doc.setTextColor(230, 220, 205);
+    doc.setFont("times", "italic");
+    doc.setFontSize(13);
+    doc.text("el espejo de las almas", pageW / 2, pageH / 2 - 70, { align: "center" });
+    doc.setFont("times", "bold");
+    doc.setFontSize(26);
+    const titleLines = doc.splitTextToSize(`el poemario de ${myUserData.name}`, maxWidth);
+    doc.text(titleLines, pageW / 2, pageH / 2 - 20, { align: "center" });
+    doc.setFont("times", "italic");
+    doc.setFontSize(11);
+    doc.setTextColor(190, 175, 150);
+    doc.text(`${myPoems.length} poema${myPoems.length === 1 ? "" : "s"} · ${new Date().getFullYear()}`, pageW / 2, pageH / 2 + 30, { align: "center" });
+
+    // ---------- poemas ----------
+    myPoems.forEach((poem) => {
+      doc.addPage();
+      doc.setFillColor(250, 247, 240);
+      doc.rect(0, 0, pageW, pageH, "F");
+      let y = margin + 10;
+
+      doc.setFont("times", "bolditalic");
+      doc.setFontSize(17);
+      doc.setTextColor(40, 32, 26);
+      const titleText = poem.title && poem.title.trim() ? poem.title : "sin título";
+      const wrappedTitle = doc.splitTextToSize(titleText, maxWidth);
+      doc.text(wrappedTitle, pageW / 2, y, { align: "center" });
+      y += wrappedTitle.length * 20 + 18;
+
+      doc.setFont("times", "normal");
+      doc.setFontSize(12.5);
+      doc.setTextColor(55, 48, 42);
+      const contentLines = doc.splitTextToSize(poem.content || "", maxWidth);
+      contentLines.forEach((line) => {
+        if(y > pageH - margin - 20){
+          addPageNumber();
+          doc.addPage();
+          doc.setFillColor(250, 247, 240);
+          doc.rect(0, 0, pageW, pageH, "F");
+          doc.setFont("times", "normal");
+          doc.setFontSize(12.5);
+          doc.setTextColor(55, 48, 42);
+          y = margin + 10;
+        }
+        doc.text(line, pageW / 2, y, { align: "center" });
+        y += 18;
+      });
+
+      doc.setFont("times", "italic");
+      doc.setFontSize(9.5);
+      doc.setTextColor(120, 108, 96);
+      doc.text(new Date(poem.timestamp || Date.now()).toLocaleDateString("es-ES"), pageW / 2, pageH - margin + 6, { align: "center" });
+      addPageNumber();
+    });
+
+    const safeName = (myUserData.name || "poeta").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+    doc.save(`poemario-de-${safeName || "poeta"}.pdf`);
   });
 
   // ============================================================
