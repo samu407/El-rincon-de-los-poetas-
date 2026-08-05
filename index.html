@@ -946,6 +946,92 @@
 
   /* ================= EXPORTAR POEMARIO PDF ================= */
   #btnExportPdf{ margin-top:12px; }
+
+  /* ================= EL MAPA DE LAS ALMAS (CONSTELACIÓN) ================= */
+  .soulmap-overlay{
+    position:fixed; inset:0; z-index:400; display:flex; flex-direction:column;
+    background:radial-gradient(ellipse 120% 90% at 50% 0%, #171233 0%, #0a0812 55%, #050408 100%);
+    opacity:0; visibility:hidden; transform:scale(1.02);
+    transition:opacity 0.5s ease, visibility 0.5s ease, transform 0.5s ease;
+  }
+  .soulmap-overlay.show{ opacity:1; visibility:visible; transform:scale(1); }
+  .soulmap-header{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:18px 22px; flex-shrink:0; position:relative; z-index:2;
+  }
+  .soulmap-title{
+    font-family:'Playfair Display', serif; font-style:italic; font-size:1.1rem;
+    color:#f2ede4; letter-spacing:0.01em;
+  }
+  .soulmap-title .sub{
+    display:block; font-family:'Inter', sans-serif; font-style:normal; font-size:10.5px;
+    letter-spacing:0.14em; text-transform:uppercase; color:#a48fd8; margin-top:3px;
+  }
+  .soulmap-close{
+    width:38px; height:38px; border-radius:50%; border:1px solid rgba(255,255,255,0.14);
+    background:rgba(255,255,255,0.05); color:#f2ede4; font-size:20px; line-height:1;
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+    transition:background 0.2s ease;
+  }
+  .soulmap-close:hover{ background:rgba(255,255,255,0.12); }
+  .soulmap-canvas-wrap{ position:relative; flex:1; min-height:0; }
+  #soulMapCanvas{ position:absolute; inset:0; width:100%; height:100%; display:block; cursor:pointer; touch-action:none; }
+  .soulmap-hint{
+    position:absolute; left:50%; bottom:18px; transform:translateX(-50%);
+    font-size:11px; letter-spacing:0.08em; color:rgba(242,237,228,0.5);
+    text-transform:uppercase; pointer-events:none; text-align:center; white-space:nowrap;
+  }
+  .soulmap-tooltip{
+    position:absolute; pointer-events:none; transform:translate(-50%, -120%);
+    background:rgba(20,16,30,0.92); border:1px solid rgba(192,132,252,0.35);
+    border-radius:10px; padding:8px 12px; max-width:220px; opacity:0; transition:opacity 0.15s ease;
+    z-index:3;
+  }
+  .soulmap-tooltip.show{ opacity:1; }
+  .soulmap-tooltip .t-name{ font-family:'Inter', sans-serif; font-size:10px; letter-spacing:0.06em; color:#c9a961; text-transform:uppercase; }
+  .soulmap-tooltip .t-title{ font-family:'Playfair Display', serif; font-style:italic; font-size:13px; color:#f2ede4; margin-top:2px; }
+
+  .soulmap-poem-card{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(5,4,8,0.88); backdrop-filter:blur(10px); z-index:5;
+    opacity:0; visibility:hidden; transition:opacity 0.4s ease, visibility 0.4s ease;
+    padding:30px;
+  }
+  .soulmap-poem-card.show{ opacity:1; visibility:visible; }
+  .soulmap-poem-inner{
+    max-width:520px; width:100%; text-align:center; animation:riseIn 0.5s ease both;
+  }
+  .soulmap-poem-inner .eyebrow{
+    font-family:'Inter', sans-serif; font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+    color:#c9a961; margin-bottom:14px; display:block;
+  }
+  .soulmap-poem-inner h3{
+    font-family:'Playfair Display', serif; font-style:italic; font-weight:500; font-size:1.7rem;
+    color:#f2ede4; margin:0 0 18px;
+  }
+  .soulmap-poem-inner .body{
+    font-family:'EB Garamond', serif; font-size:1.15rem; line-height:1.9; color:#e4ddd0;
+    white-space:pre-wrap; margin:0 0 22px; max-height:42vh; overflow-y:auto;
+  }
+  .soulmap-poem-inner .meta{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    font-family:'Inter', sans-serif; font-size:12px; color:#a9a6a0;
+  }
+  .soulmap-poem-close{
+    position:absolute; top:18px; right:22px; width:38px; height:38px; border-radius:50%;
+    border:1px solid rgba(255,255,255,0.14); background:rgba(255,255,255,0.05); color:#f2ede4;
+    font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .soulmap-poem-open-link{
+    margin-top:18px; display:inline-block; font-family:'Inter', sans-serif; font-size:11.5px;
+    letter-spacing:0.06em; color:#c084fc; cursor:pointer; text-decoration:underline;
+    text-underline-offset:3px;
+  }
+  #btnOpenSoulMap svg{ width:19px; height:19px; }
+  @media (max-width:600px){
+    .soulmap-poem-inner h3{ font-size:1.4rem; }
+    .soulmap-poem-inner .body{ font-size:1.02rem; }
+  }
   .notif-empty{ padding:24px 16px; text-align:center; font-family:'Inter', sans-serif; font-size:12px; color:var(--ink-faint); }
 
   /* ================= BOTÓN COMPARTIR IMAGEN EN LA TARJETA ================= */
@@ -967,6 +1053,9 @@
   </div>
 
   <div class="nav-right">
+    <button class="theme-toggle-btn" id="btnOpenSoulMap" title="el mapa de las almas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.6 4.9L19 8l-4.9 1.6L12 15l-1.6-4.9L5 8l4.9-1.1L12 2Z"/><circle cx="19" cy="17" r="1.4" fill="currentColor" stroke="none"/><circle cx="5" cy="18" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="5" r="0.8" fill="currentColor" stroke="none"/></svg>
+    </button>
     <button class="theme-toggle-btn" id="btnOpenRanking" title="poetas ilustres">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4a1 1 0 0 0-1 1v1a4 4 0 0 0 4 4M17 5h3a1 1 0 0 1 1 1v1a4 4 0 0 1-4 4"/></svg>
     </button>
@@ -1294,6 +1383,26 @@
 <div class="bottle-toast" id="bottleToast">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 7l10 6 10-6"/></svg>
   <span class="bottle-toast-text sans">te ha llegado una carta en una botella</span>
+</div>
+
+<!-- ============ EL MAPA DE LAS ALMAS (CONSTELACIÓN INTERACTIVA) ============ -->
+<div class="soulmap-overlay" id="soulMapOverlay">
+  <div class="soulmap-header">
+    <div class="soulmap-title">✦ el mapa de las almas<span class="sub">cada verso, una estrella</span></div>
+    <button class="soulmap-close" id="soulMapClose">&times;</button>
+  </div>
+  <div class="soulmap-canvas-wrap">
+    <canvas id="soulMapCanvas"></canvas>
+    <div class="soulmap-tooltip" id="soulMapTooltip">
+      <div class="t-name" id="soulMapTooltipName"></div>
+      <div class="t-title" id="soulMapTooltipTitle"></div>
+    </div>
+    <div class="soulmap-hint sans" id="soulMapHint">toca o pasa el cursor sobre una estrella para descubrir su verso</div>
+    <div class="soulmap-poem-card" id="soulMapPoemCard">
+      <button class="soulmap-poem-close" id="soulMapPoemClose">&times;</button>
+      <div class="soulmap-poem-inner" id="soulMapPoemInner"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ============ LEVEL UP OVERLAY ============ -->
@@ -3410,6 +3519,254 @@ async function searchSpotifyTrack(queryText) {
 
     const safeName = (myUserData.name || "poeta").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     doc.save(`poemario-de-${safeName || "poeta"}.pdf`);
+  });
+
+  // ============================================================
+  //  EL MAPA DE LAS ALMAS (CONSTELACIÓN INTERACTIVA)
+  // ============================================================
+  const soulMapOverlay = document.getElementById("soulMapOverlay");
+  const soulMapCanvas = document.getElementById("soulMapCanvas");
+  const soulMapCtx = soulMapCanvas.getContext("2d");
+  const soulMapTooltip = document.getElementById("soulMapTooltip");
+  const soulMapHint = document.getElementById("soulMapHint");
+  const soulMapPoemCard = document.getElementById("soulMapPoemCard");
+  const soulMapPoemInner = document.getElementById("soulMapPoemInner");
+
+  let soulMapStars = [];
+  let soulMapAnimFrame = null;
+  let soulMapHoverStar = null;
+  let soulMapActiveStar = null; // estrella fija mientras la tarjeta del poema está abierta
+  let soulMapWidth = 0, soulMapHeight = 0;
+
+  const SOULMAP_CATEGORY_COLORS = {
+    "Amor": "#f2a4c4",
+    "Desamor": "#8fb8e6",
+    "Nostalgia": "#c9a961",
+    "Soledad": "#9a8fd8",
+    "Filosofía": "#8fd8c4"
+  };
+  function soulmapColorFor(category){
+    return SOULMAP_CATEGORY_COLORS[category] || "#f2ede4";
+  }
+
+  // convierte un string en un número estable entre 0 y 1 (para posiciones/fases fijas)
+  function hashUnit(str, salt){
+    let h = 2166136261 >>> 0;
+    const s = String(str) + "::" + salt;
+    for(let i = 0; i < s.length; i++){
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return ((h >>> 0) % 100000) / 100000;
+  }
+
+  function buildSoulMapStars(){
+    const poems = Object.values(poemsCache);
+    soulMapStars = poems.map(poem => {
+      const reactions = poem.reactions || {};
+      let likeCount = 0;
+      Object.values(reactions).forEach(t => { if(t === "like") likeCount++; });
+      return {
+        id: poem.id,
+        poem,
+        x: 0.06 + hashUnit(poem.id, "x") * 0.88,
+        y: 0.12 + hashUnit(poem.id, "y") * 0.72,
+        likeCount,
+        category: poem.category || null,
+        authorUid: poem.authorUid,
+        twinklePhase: hashUnit(poem.id, "phase") * Math.PI * 2,
+        twinkleSpeed: 0.6 + hashUnit(poem.id, "speed") * 0.9,
+        radius: 1.6 + Math.min(likeCount, 12) * 0.34
+      };
+    });
+  }
+
+  function resizeSoulMapCanvas(){
+    const wrap = soulMapCanvas.parentElement;
+    const rect = wrap.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    soulMapWidth = rect.width;
+    soulMapHeight = rect.height;
+    soulMapCanvas.width = Math.round(rect.width * dpr);
+    soulMapCanvas.height = Math.round(rect.height * dpr);
+    soulMapCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  // estrellas "relacionadas": mismo autor o misma categoría/tema del poema
+  function relatedSoulMapStars(star){
+    if(!star) return [];
+    return soulMapStars.filter(s => s.id !== star.id && (
+      (star.category && s.category === star.category) ||
+      (star.authorUid && s.authorUid === star.authorUid)
+    )).slice(0, 14);
+  }
+
+  function drawSoulMap(timeMs){
+    if(!soulMapOverlay.classList.contains("show")) return;
+    const ctx = soulMapCtx;
+    ctx.clearRect(0, 0, soulMapWidth, soulMapHeight);
+
+    const focusStar = soulMapActiveStar || soulMapHoverStar;
+    const related = focusStar ? relatedSoulMapStars(focusStar) : [];
+
+    // líneas tenues conectando la estrella activa con sus estrellas relacionadas
+    if(focusStar){
+      related.forEach(s => {
+        ctx.beginPath();
+        ctx.moveTo(focusStar.x * soulMapWidth, focusStar.y * soulMapHeight);
+        ctx.lineTo(s.x * soulMapWidth, s.y * soulMapHeight);
+        ctx.strokeStyle = "rgba(192,132,252,0.28)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+    }
+
+    // las estrellas: cada poema publicado, brillo según sus interacciones
+    soulMapStars.forEach(s => {
+      const twinkle = 0.55 + 0.45 * Math.sin(timeMs * 0.001 * s.twinkleSpeed + s.twinklePhase);
+      const isFocus = !!focusStar && s.id === focusStar.id;
+      const isRelated = related.some(r => r.id === s.id);
+      let alpha = 0.35 + 0.5 * twinkle;
+      let radius = s.radius;
+      if(focusStar){
+        if(isFocus){ alpha = 1; radius = s.radius * 1.6; }
+        else if(isRelated){ alpha = Math.min(1, alpha + 0.35); }
+        else{ alpha *= 0.32; }
+      }
+      const color = soulmapColorFor(s.category);
+      const px = s.x * soulMapWidth, py = s.y * soulMapHeight;
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.shadowColor = color;
+      ctx.shadowBlur = isFocus ? 18 : 8 + s.likeCount * 0.6;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(px, py, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    soulMapAnimFrame = requestAnimationFrame(drawSoulMap);
+  }
+
+  function findSoulMapStarAt(px, py){
+    let closest = null, closestDist = Infinity;
+    soulMapStars.forEach(s => {
+      const sx = s.x * soulMapWidth, sy = s.y * soulMapHeight;
+      const d = Math.hypot(px - sx, py - sy);
+      const hitRadius = Math.max(s.radius + 10, 16);
+      if(d <= hitRadius && d < closestDist){ closest = s; closestDist = d; }
+    });
+    return closest;
+  }
+
+  function soulMapPointerPos(e){
+    const rect = soulMapCanvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  }
+
+  function showSoulMapTooltip(star, pos){
+    const author = usersCache[star.authorUid] || {};
+    const isPseudo = !!star.poem.pseudonym;
+    const name = isPseudo ? (star.poem.authorName || "un alma enigmática") : (author.name || star.poem.authorName || "anónimo");
+    document.getElementById("soulMapTooltipName").textContent = `${name} · ${star.likeCount} ${star.likeCount === 1 ? "eco" : "ecos"}`;
+    document.getElementById("soulMapTooltipTitle").textContent = star.poem.title && star.poem.title.trim() ? star.poem.title : "sin título";
+    soulMapTooltip.style.left = `${pos.x}px`;
+    soulMapTooltip.style.top = `${pos.y}px`;
+    soulMapTooltip.classList.add("show");
+  }
+
+  function openSoulMapPoemCard(star){
+    const poem = star.poem;
+    const author = usersCache[star.authorUid] || {};
+    const isPseudo = !!poem.pseudonym;
+    const name = isPseudo ? (poem.authorName || "un alma enigmática") : (author.name || poem.authorName || "anónimo");
+    soulMapPoemInner.innerHTML = `
+      <span class="eyebrow">${poem.category ? `#${escapeHtml(poem.category)}` : "un verso en el universo"}</span>
+      <h3>${escapeHtml(poem.title && poem.title.trim() ? poem.title : "sin título")}</h3>
+      <div class="body">${escapeHtml(poem.content || "")}</div>
+      <div class="meta">
+        <span>${escapeHtml(name)}</span><span>·</span><span>${star.likeCount} ${star.likeCount === 1 ? "eco" : "ecos"}</span>
+      </div>
+      <span class="soulmap-poem-open-link" id="soulMapGoToWall">ver esta estrella en el muro ↗</span>
+    `;
+    soulMapPoemCard.classList.add("show");
+    document.getElementById("soulMapGoToWall").addEventListener("click", () => {
+      closeSoulMap();
+      showView("wall");
+      setTimeout(() => {
+        const card = document.querySelector(`[data-poem-id="${poem.id}"]`);
+        if(card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 150);
+    });
+  }
+
+  function closeSoulMapPoemCard(){
+    soulMapPoemCard.classList.remove("show");
+    soulMapActiveStar = null;
+  }
+
+  soulMapCanvas.addEventListener("mousemove", (e) => {
+    const pos = soulMapPointerPos(e);
+    const star = findSoulMapStarAt(pos.x, pos.y);
+    soulMapHoverStar = star;
+    if(star){
+      soulMapHint.style.opacity = "0";
+      showSoulMapTooltip(star, pos);
+    }else{
+      soulMapTooltip.classList.remove("show");
+      soulMapHint.style.opacity = "1";
+    }
+  });
+  soulMapCanvas.addEventListener("mouseleave", () => {
+    soulMapHoverStar = null;
+    soulMapTooltip.classList.remove("show");
+    soulMapHint.style.opacity = "1";
+  });
+  soulMapCanvas.addEventListener("click", (e) => {
+    const pos = soulMapPointerPos(e);
+    const star = findSoulMapStarAt(pos.x, pos.y);
+    if(star){
+      soulMapActiveStar = star;
+      openSoulMapPoemCard(star);
+    }
+  });
+  soulMapCanvas.addEventListener("touchstart", (e) => {
+    const pos = soulMapPointerPos(e);
+    const star = findSoulMapStarAt(pos.x, pos.y);
+    if(star){
+      e.preventDefault();
+      soulMapHoverStar = star;
+      showSoulMapTooltip(star, pos);
+    }
+  }, { passive: false });
+
+  document.getElementById("soulMapPoemClose").addEventListener("click", closeSoulMapPoemCard);
+
+  function openSoulMap(){
+    buildSoulMapStars();
+    soulMapOverlay.classList.add("show");
+    requestAnimationFrame(() => {
+      resizeSoulMapCanvas();
+      if(soulMapAnimFrame) cancelAnimationFrame(soulMapAnimFrame);
+      soulMapAnimFrame = requestAnimationFrame(drawSoulMap);
+    });
+  }
+  function closeSoulMap(){
+    soulMapOverlay.classList.remove("show");
+    closeSoulMapPoemCard();
+    soulMapHoverStar = null;
+    soulMapTooltip.classList.remove("show");
+    if(soulMapAnimFrame){ cancelAnimationFrame(soulMapAnimFrame); soulMapAnimFrame = null; }
+  }
+
+  document.getElementById("btnOpenSoulMap").addEventListener("click", openSoulMap);
+  document.getElementById("soulMapClose").addEventListener("click", closeSoulMap);
+  window.addEventListener("resize", () => {
+    if(soulMapOverlay.classList.contains("show")) resizeSoulMapCanvas();
   });
 
   // ============================================================
