@@ -1055,6 +1055,148 @@
   /* ================= BOTÓN COMPARTIR IMAGEN EN LA TARJETA ================= */
   .postcard-share-btn svg{ width:14px; height:14px; }
 
+  /* ================= ATMÓSFERAS AMBIENTALES ================= */
+  .ambient-widget{
+    position:fixed; left:22px; bottom:22px; z-index:90;
+    display:flex; flex-direction:column; align-items:flex-start; gap:10px;
+  }
+  .ambient-toggle{
+    width:48px; height:48px; border-radius:50%;
+    background:var(--bg-panel); border:1px solid var(--hairline);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink-dim); cursor:pointer; box-shadow:var(--shadow-deep);
+    transition:color 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+  }
+  .ambient-toggle svg{ width:20px; height:20px; }
+  .ambient-toggle:hover{ color:var(--lavender); transform:translateY(-2px); }
+  .ambient-toggle.playing{ color:var(--lavender); border-color:var(--lavender-dim); }
+  .ambient-toggle.playing .ambient-pulse{
+    position:absolute; inset:-4px; border-radius:50%; border:1px solid var(--lavender-dim);
+    animation:ambientPulse 2.4s ease-out infinite;
+  }
+  @keyframes ambientPulse{
+    0%{ transform:scale(0.85); opacity:0.7; }
+    100%{ transform:scale(1.35); opacity:0; }
+  }
+  .ambient-toggle{ position:relative; }
+  .ambient-menu{
+    position:absolute; bottom:58px; left:0;
+    background:var(--bg-panel); border:1px solid var(--hairline); border-radius:16px;
+    padding:14px; width:200px; box-shadow:var(--shadow-deep);
+    opacity:0; visibility:hidden; transform:translateY(8px);
+    transition:opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
+  }
+  .ambient-menu.show{ opacity:1; visibility:visible; transform:translateY(0); }
+  .ambient-menu-title{
+    font-family:'Inter', sans-serif; font-size:11px; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--ink-faint); margin:0 0 10px;
+  }
+  .ambient-option{
+    display:flex; align-items:center; gap:10px; width:100%; background:none; border:none;
+    color:var(--ink-dim); font-family:'Inter', sans-serif; font-size:13px; text-align:left;
+    padding:8px 6px; border-radius:10px; cursor:pointer; transition:background 0.2s ease, color 0.2s ease;
+  }
+  .ambient-option:hover{ background:var(--lavender-soft); color:var(--ink); }
+  .ambient-option.active{ color:var(--lavender); }
+  .ambient-option svg{ width:16px; height:16px; flex-shrink:0; }
+  .ambient-volume{ margin-top:10px; padding-top:10px; border-top:1px solid var(--hairline); }
+  .ambient-volume input[type="range"]{ width:100%; accent-color:var(--lavender-dim); }
+
+  #ambientFX{
+    position:fixed; inset:0; z-index:2; pointer-events:none; overflow:hidden;
+  }
+  .fx-drop{
+    position:absolute; top:-40px; width:1.5px; background:linear-gradient(to bottom, transparent, rgba(210,220,255,0.5));
+    animation:fxFall linear infinite;
+  }
+  @keyframes fxFall{ to{ transform:translateY(112vh); } }
+  .fx-spark{
+    position:absolute; bottom:-10px; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,190,110,0.95), rgba(255,120,40,0));
+    animation:fxRise linear infinite;
+  }
+  @keyframes fxRise{
+    0%{ transform:translate(0,0) scale(1); opacity:0.9; }
+    100%{ transform:translate(var(--fx-drift,10px), -100vh) scale(0.3); opacity:0; }
+  }
+  .fx-leaf{
+    position:absolute; top:-20px; border-radius:50%;
+    background:rgba(242,237,228,0.18);
+    animation:fxDrift linear infinite;
+  }
+  @keyframes fxDrift{
+    0%{ transform:translate(0,0); opacity:0; }
+    10%{ opacity:0.7; }
+    90%{ opacity:0.5; }
+    100%{ transform:translate(var(--fx-drift,60vw), 100vh); opacity:0; }
+  }
+
+  /* ================= ORÁCULO DE LOS VERSOS ================= */
+  .oracle-overlay{
+    position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
+    background:#000; opacity:0; pointer-events:none; padding:24px;
+    transition:opacity 0.6s ease;
+  }
+  .oracle-overlay.show{ opacity:1; pointer-events:auto; }
+  .oracle-overlay::before{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(115deg, transparent 30%, rgba(192,132,252,0.35) 48%, rgba(255,255,255,0.55) 50%, rgba(192,132,252,0.35) 52%, transparent 70%);
+    background-size:250% 250%; background-position:120% 0%;
+    opacity:0; mix-blend-mode:screen; pointer-events:none;
+  }
+  .oracle-overlay.shine::before{
+    animation:oracleShine 1.1s ease-out forwards;
+  }
+  @keyframes oracleShine{
+    0%{ opacity:0; background-position:130% -20%; }
+    35%{ opacity:1; }
+    100%{ opacity:0; background-position:-30% 20%; }
+  }
+  .oracle-card{
+    max-width:480px; width:100%; text-align:center; position:relative;
+    opacity:0; transform:scale(0.94) translateY(10px);
+    transition:opacity 0.7s ease 0.35s, transform 0.7s cubic-bezier(.19,1,.22,1) 0.35s;
+  }
+  .oracle-overlay.show .oracle-card{ opacity:1; transform:scale(1) translateY(0); }
+  .oracle-icon{ color:var(--lavender); margin-bottom:18px; opacity:0.85; }
+  .oracle-icon svg{ width:30px; height:30px; }
+  .oracle-verse{
+    font-family:'Playfair Display', serif; font-style:italic; color:var(--ink);
+    font-size:1.5rem; line-height:1.65; white-space:pre-wrap; margin:0 0 20px;
+  }
+  html[data-theme="candle"] .oracle-verse{ color:#f2ede4; }
+  .oracle-verse-signature{
+    font-family:'Inter', sans-serif; font-size:12px; letter-spacing:0.04em; color:var(--lavender);
+    margin:0 0 30px;
+  }
+  .oracle-close-btn{
+    background:none; border:1px solid rgba(242,237,228,0.25); color:#f2ede4;
+    border-radius:100px; padding:10px 24px; font-family:'Inter', sans-serif; font-size:13px;
+    cursor:pointer; transition:all 0.25s ease;
+  }
+  .oracle-close-btn:hover{ border-color:var(--lavender); color:var(--lavender); }
+
+  /* ================= CORRECTOR DE ORTOGRAFÍA ================= */
+  .spellcheck-btn{
+    display:inline-flex; align-items:center; gap:6px; background:none; border:none;
+    color:var(--ink-faint); font-family:'Inter', sans-serif; font-size:11.5px; cursor:pointer;
+    padding:4px 0; transition:color 0.2s ease;
+  }
+  .spellcheck-btn:hover{ color:var(--lavender); }
+  .spellcheck-btn svg{ width:13px; height:13px; }
+  .spellcheck-btn.checking{ opacity:0.6; pointer-events:none; }
+  .spellcheck-panel{
+    margin-top:8px; padding:10px 12px; border-radius:10px; background:var(--bg-panel-raised);
+    border:1px solid var(--hairline); font-family:'Inter', sans-serif; font-size:12px;
+    color:var(--ink-dim); display:none;
+  }
+  .spellcheck-panel.show{ display:block; }
+  .spellcheck-panel .sc-item{ padding:5px 0; border-bottom:1px dashed var(--hairline); }
+  .spellcheck-panel .sc-item:last-child{ border-bottom:none; }
+  .spellcheck-panel .sc-wrong{ color:var(--rose); font-style:italic; }
+  .spellcheck-panel .sc-sugg{ color:var(--gold); }
+  .spellcheck-panel .sc-ok{ color:var(--ink-dim); }
+
   a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
     outline:2px solid var(--lavender); outline-offset:3px;
   }
@@ -1076,6 +1218,9 @@
     </button>
     <button class="theme-toggle-btn" id="btnOpenRanking" title="poetas ilustres">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4a1 1 0 0 0-1 1v1a4 4 0 0 0 4 4M17 5h3a1 1 0 0 1 1 1v1a4 4 0 0 1-4 4"/></svg>
+    </button>
+    <button class="theme-toggle-btn" id="btnOpenOracle" title="¿qué necesita escuchar tu alma hoy?">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3.5 0-6 2.7-6 6.2 0 2.6 1.5 4.4 2.7 5.8.7.8 1.3 1.5 1.3 2.3V19h4v-1.7c0-.8.6-1.5 1.3-2.3 1.2-1.4 2.7-3.2 2.7-5.8C18 5.7 15.5 3 12 3Z"/><path d="M10 21h4"/><path d="M12 7v4"/><circle cx="12" cy="9" r="0.6" fill="currentColor" stroke="none"/></svg>
     </button>
     <div class="notif-bell-wrap">
       <button class="theme-toggle-btn notif-bell-btn" id="notifBellBtn" title="notificaciones">
@@ -1099,6 +1244,50 @@
     </div>
   </div>
 </nav>
+
+<!-- ============ ATMÓSFERAS AMBIENTALES ============ -->
+<div id="ambientFX"></div>
+
+<div class="ambient-widget">
+  <div class="ambient-toggle" id="ambientToggle" title="atmósferas ambientales">
+    <div class="ambient-pulse" id="ambientPulse" style="display:none;"></div>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><path d="M4 14a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1v-6H4Z"/><path d="M20 14a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-1v-6h1Z"/></svg>
+  </div>
+  <div class="ambient-menu" id="ambientMenu">
+    <p class="ambient-menu-title">atmósferas ambientales</p>
+    <button class="ambient-option" data-ambient="rain">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 12A5.5 5.5 0 1 0 8 8.2 4.5 4.5 0 0 0 6 17h11.5A3.5 3.5 0 0 0 17.5 12Z"/><path d="M9 19l-1 2M13 19l-1 2M17 19l-1 2"/></svg>
+      <span>lluvia suave</span>
+    </button>
+    <button class="ambient-option" data-ambient="fire">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c4 0 6.5-2.5 6.5-6 0-2.5-1.5-4-2.5-5.5.3 2-1 3-1.8 2.2-1-1-.5-3-1.7-4.7-.7 3-3 4-3.5 6.5-.3-1-.2-2 0-3-1.5 1.3-3 3.3-3 6.5 0 3.5 2.5 6 6 6Z"/></svg>
+      <span>fuego de hoguera</span>
+    </button>
+    <button class="ambient-option" data-ambient="wind">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 16h14a3 3 0 1 1-3 3"/><path d="M3 12h8"/></svg>
+      <span>viento nocturno</span>
+    </button>
+    <button class="ambient-option" data-ambient="off">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 8l8 8"/></svg>
+      <span>silencio</span>
+    </button>
+    <div class="ambient-volume">
+      <input type="range" id="ambientVolume" min="0" max="100" value="45">
+    </div>
+  </div>
+</div>
+
+<!-- ============ ORÁCULO DE LOS VERSOS ============ -->
+<div class="oracle-overlay" id="oracleOverlay">
+  <div class="oracle-card">
+    <div class="oracle-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3.5 0-6 2.7-6 6.2 0 2.6 1.5 4.4 2.7 5.8.7.8 1.3 1.5 1.3 2.3V19h4v-1.7c0-.8.6-1.5 1.3-2.3 1.2-1.4 2.7-3.2 2.7-5.8C18 5.7 15.5 3 12 3Z"/><path d="M10 21h4"/></svg>
+    </div>
+    <p class="oracle-verse" id="oracleVerseText"></p>
+    <p class="oracle-verse-signature" id="oracleVerseSignature"></p>
+    <button class="oracle-close-btn" id="oracleCloseBtn">volver al espejo</button>
+  </div>
+</div>
 
 <!-- ============ ELEMENTO OCULTO PARA GENERAR TARJETAS POSTAL ============ -->
 <div id="postcardStage"></div>
@@ -1130,11 +1319,16 @@
     <section class="composer" id="composerLoggedIn" style="display:none;">
       <div class="field">
         <label class="field-label sans" for="poemTitle">título <span style="opacity:0.6">(opcional)</span></label>
-        <input type="text" id="poemTitle" placeholder="sin título">
+        <input type="text" id="poemTitle" placeholder="sin título" spellcheck="true" lang="es">
       </div>
       <div class="field">
         <label class="field-label sans" for="poemContent">el poema</label>
-        <textarea id="poemContent" placeholder="escribe sin miedo. los saltos de línea se guardan tal como los dejes..."></textarea>
+        <textarea id="poemContent" placeholder="escribe sin miedo. los saltos de línea se guardan tal como los dejes..." spellcheck="true" lang="es"></textarea>
+        <button type="button" class="spellcheck-btn" id="poemSpellcheckBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h11"/></svg>
+          <span>revisar ortografía</span>
+        </button>
+        <div class="spellcheck-panel" id="poemSpellcheckPanel"></div>
       </div>
 
       <!-- ============================================================ -->
@@ -1299,7 +1493,7 @@
 
       <div class="about-edit-area" id="aboutEditArea" style="display:none;">
         <div class="field">
-          <textarea id="aboutBioTextarea" placeholder="escribe aquí quién eres, a qué te dedicas, por qué construiste este espejo..."></textarea>
+          <textarea id="aboutBioTextarea" placeholder="escribe aquí quién eres, a qué te dedicas, por qué construiste este espejo..." spellcheck="true" lang="es"></textarea>
         </div>
         <div class="publish-row">
           <span class="hint">solo tú, con tu cuenta, puedes ver y editar esto</span>
@@ -1361,7 +1555,7 @@
     </div>
     <div class="field" style="margin-bottom:16px;">
       <label class="field-label sans">tu historia o razón para escribir</label>
-      <textarea id="onbStory" placeholder="¿por qué escribes? ¿qué te trae al espejo?" style="min-height:110px;"></textarea>
+      <textarea id="onbStory" placeholder="¿por qué escribes? ¿qué te trae al espejo?" style="min-height:110px;" spellcheck="true" lang="es"></textarea>
     </div>
 
     <button class="pill-btn sans" id="btnSaveOnboarding" style="width:100%;">entrar al espejo</button>
@@ -1375,7 +1569,7 @@
     <button class="modal-close" id="bottleComposeClose">&times;</button>
     <h2 class="modal-title">mensaje en una botella</h2>
     <p class="modal-sub">escribe una carta anónima. el mar del espejo la llevará a otra alma al azar, y nunca sabrá que fuiste tú.</p>
-    <textarea class="bottle-compose-textarea" id="bottleComposeText" placeholder="querida alma que me lees..."></textarea>
+    <textarea class="bottle-compose-textarea" id="bottleComposeText" placeholder="querida alma que me lees..." spellcheck="true" lang="es"></textarea>
     <div class="error-msg sans" id="bottleComposeError" style="margin-top:10px;"></div>
     <button class="pill-btn sans" id="btnSendBottle" style="width:100%; margin-top:16px;">soltar la botella al mar</button>
   </div>
@@ -2676,7 +2870,7 @@ async function searchSpotifyTrack(queryText) {
           <input type="text" class="edit-title-input" value="${escapeAttr(poem.title || "")}" placeholder="título (opcional)">
         </div>
         <div class="field">
-          <textarea class="edit-content-input" placeholder="el poema">${escapeHtml(poem.content)}</textarea>
+          <textarea class="edit-content-input" placeholder="el poema" spellcheck="true" lang="es">${escapeHtml(poem.content)}</textarea>
         </div>
         <div class="publish-row">
           <button class="pill-btn sans" data-action="save-edit-poem" data-id="${poem.id}">guardar cambios</button>
@@ -3912,5 +4106,301 @@ async function searchSpotifyTrack(queryText) {
   attachPoemsListener();
 
   renderComposerState();
+
+  // ============================================================
+  //  ATMÓSFERAS AMBIENTALES (sonido + partículas)
+  // ============================================================
+  (function(){
+    const toggleBtn = document.getElementById("ambientToggle");
+    const pulseEl = document.getElementById("ambientPulse");
+    const menu = document.getElementById("ambientMenu");
+    const volumeSlider = document.getElementById("ambientVolume");
+    const fxLayer = document.getElementById("ambientFX");
+    const optionBtns = Array.from(document.querySelectorAll(".ambient-option"));
+
+    let audioCtx = null;
+    let masterGain = null;
+    let currentSound = null;   // "rain" | "fire" | "wind" | null
+    let currentNodes = [];     // nodos activos a desconectar al cambiar de sonido
+    let fxTimers = [];         // intervalos de partículas activos
+    const AMBIENT_KEY = "espejo_ambient";
+
+    function ensureCtx(){
+      if(!audioCtx){
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = (volumeSlider.value / 100) * 0.5;
+        masterGain.connect(audioCtx.destination);
+      }
+      if(audioCtx.state === "suspended") audioCtx.resume();
+    }
+
+    function makeNoiseBuffer(kind){
+      const bufferSize = audioCtx.sampleRate * 4;
+      const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const data = buffer.getChannelData(0);
+      if(kind === "brown"){
+        let last = 0;
+        for(let i=0;i<bufferSize;i++){
+          const white = Math.random()*2-1;
+          last = (last + 0.02*white) / 1.02;
+          data[i] = last * 3.2;
+        }
+      }else{
+        for(let i=0;i<bufferSize;i++) data[i] = Math.random()*2-1;
+      }
+      return buffer;
+    }
+
+    function stopCurrentSound(){
+      currentNodes.forEach(n => { try{ n.stop && n.stop(); n.disconnect && n.disconnect(); }catch(e){} });
+      currentNodes = [];
+      fxTimers.forEach(t => clearInterval(t));
+      fxTimers = [];
+      fxLayer.innerHTML = "";
+    }
+
+    function playRain(){
+      ensureCtx();
+      const src = audioCtx.createBufferSource();
+      src.buffer = makeNoiseBuffer("white");
+      src.loop = true;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 1200;
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.55;
+      src.connect(filter); filter.connect(gain); gain.connect(masterGain);
+      src.start();
+      currentNodes = [src, filter, gain];
+
+      const t = setInterval(() => {
+        const drop = document.createElement("div");
+        drop.className = "fx-drop";
+        drop.style.left = Math.random()*100 + "vw";
+        drop.style.height = (14 + Math.random()*18) + "px";
+        drop.style.animationDuration = (0.7 + Math.random()*0.6) + "s";
+        fxLayer.appendChild(drop);
+        setTimeout(() => drop.remove(), 1500);
+      }, 90);
+      fxTimers = [t];
+    }
+
+    function playFire(){
+      ensureCtx();
+      // cama grave de fuego (ruido marrón filtrado)
+      const bed = audioCtx.createBufferSource();
+      bed.buffer = makeNoiseBuffer("brown");
+      bed.loop = true;
+      const bedFilter = audioCtx.createBiquadFilter();
+      bedFilter.type = "lowpass";
+      bedFilter.frequency.value = 400;
+      const bedGain = audioCtx.createGain();
+      bedGain.gain.value = 0.5;
+      bed.connect(bedFilter); bedFilter.connect(bedGain); bedGain.connect(masterGain);
+      bed.start();
+      currentNodes = [bed, bedFilter, bedGain];
+
+      // chasquidos aleatorios (crackle)
+      const crackleTimer = setInterval(() => {
+        if(!audioCtx || currentSound !== "fire") return;
+        const c = audioCtx.createBufferSource();
+        c.buffer = makeNoiseBuffer("white");
+        const cf = audioCtx.createBiquadFilter();
+        cf.type = "bandpass";
+        cf.frequency.value = 1800 + Math.random()*2500;
+        cf.Q.value = 6;
+        const cg = audioCtx.createGain();
+        cg.gain.value = 0;
+        cg.gain.setValueAtTime(0, audioCtx.currentTime);
+        cg.gain.linearRampToValueAtTime(0.35 + Math.random()*0.25, audioCtx.currentTime + 0.01);
+        cg.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.09);
+        c.connect(cf); cf.connect(cg); cg.connect(masterGain);
+        c.start();
+        c.stop(audioCtx.currentTime + 0.12);
+      }, 260);
+      currentNodes.push({ stop:()=>{}, disconnect:()=>{} });
+
+      const fxTimer = setInterval(() => {
+        const spark = document.createElement("div");
+        spark.className = "fx-spark";
+        const size = 3 + Math.random()*4;
+        spark.style.width = size + "px";
+        spark.style.height = size + "px";
+        spark.style.left = (40 + Math.random()*20) + "vw";
+        spark.style.setProperty("--fx-drift", (Math.random()*60-30) + "px");
+        spark.style.animationDuration = (2 + Math.random()*1.6) + "s";
+        fxLayer.appendChild(spark);
+        setTimeout(() => spark.remove(), 4000);
+      }, 220);
+
+      fxTimers = [crackleTimer, fxTimer];
+    }
+
+    function playWind(){
+      ensureCtx();
+      const src = audioCtx.createBufferSource();
+      src.buffer = makeNoiseBuffer("brown");
+      src.loop = true;
+      const filter = audioCtx.createBiquadFilter();
+      filter.type = "bandpass";
+      filter.Q.value = 0.7;
+      filter.frequency.value = 500;
+      const gain = audioCtx.createGain();
+      gain.gain.value = 0.5;
+      src.connect(filter); filter.connect(gain); gain.connect(masterGain);
+      src.start();
+
+      // LFO que hace "respirar" el viento, subiendo y bajando el filtro
+      const lfo = audioCtx.createOscillator();
+      lfo.frequency.value = 0.08;
+      const lfoGain = audioCtx.createGain();
+      lfoGain.gain.value = 350;
+      lfo.connect(lfoGain);
+      lfoGain.connect(filter.frequency);
+      lfo.start();
+
+      currentNodes = [src, filter, gain, lfo, lfoGain];
+
+      const t = setInterval(() => {
+        const leaf = document.createElement("div");
+        leaf.className = "fx-leaf";
+        const size = 3 + Math.random()*3;
+        leaf.style.width = size + "px";
+        leaf.style.height = size + "px";
+        leaf.style.top = Math.random()*70 + "vh";
+        leaf.style.left = "-2vw";
+        leaf.style.setProperty("--fx-drift", (70 + Math.random()*40) + "vw");
+        leaf.style.animationDuration = (6 + Math.random()*4) + "s";
+        fxLayer.appendChild(leaf);
+        setTimeout(() => leaf.remove(), 11000);
+      }, 900);
+      fxTimers = [t];
+    }
+
+    function setAmbient(kind){
+      stopCurrentSound();
+      currentSound = kind === "off" ? null : kind;
+      optionBtns.forEach(b => b.classList.toggle("active", b.dataset.ambient === kind));
+      toggleBtn.classList.toggle("playing", !!currentSound);
+      pulseEl.style.display = currentSound ? "block" : "none";
+      if(currentSound === "rain") playRain();
+      else if(currentSound === "fire") playFire();
+      else if(currentSound === "wind") playWind();
+      try{ localStorage.setItem(AMBIENT_KEY, kind); }catch(e){}
+    }
+
+    toggleBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menu.classList.toggle("show");
+    });
+    document.addEventListener("click", (e) => {
+      if(!e.target.closest(".ambient-widget")) menu.classList.remove("show");
+    });
+    optionBtns.forEach(btn => {
+      btn.addEventListener("click", () => setAmbient(btn.dataset.ambient));
+    });
+    volumeSlider.addEventListener("input", () => {
+      if(masterGain) masterGain.gain.value = (volumeSlider.value / 100) * 0.5;
+    });
+  })();
+
+  // ============================================================
+  //  EL ORÁCULO DE LOS VERSOS
+  // ============================================================
+  (function(){
+    const btnOpen = document.getElementById("btnOpenOracle");
+    const overlay = document.getElementById("oracleOverlay");
+    const verseEl = document.getElementById("oracleVerseText");
+    const signatureEl = document.getElementById("oracleVerseSignature");
+    const closeBtn = document.getElementById("oracleCloseBtn");
+
+    function pickOracleVerse(){
+      const allPoems = Object.values(poemsCache).filter(p => p && p.content && p.content.trim());
+      if(allPoems.length === 0) return null;
+      const poem = allPoems[Math.floor(Math.random() * allPoems.length)];
+      const stanzas = poem.content.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
+      const stanza = stanzas.length ? stanzas[Math.floor(Math.random() * stanzas.length)] : poem.content.trim();
+      const authorUser = usersCache[poem.authorUid];
+      const signature = poem.pseudonym
+        ? (poem.authorName || "un alma enigmática")
+        : ((authorUser && authorUser.name) || poem.authorName || "anónimo");
+      return { stanza, signature };
+    }
+
+    function openOracle(){
+      const pick = pickOracleVerse();
+      overlay.classList.add("show");
+      if(!pick){
+        verseEl.textContent = "el espejo aún está en silencio... vuelve cuando existan versos por descubrir.";
+        signatureEl.textContent = "";
+      }else{
+        verseEl.textContent = "";
+        signatureEl.textContent = "";
+      }
+      overlay.classList.remove("shine");
+      // fuerza reflow para reiniciar la animación de brillo
+      void overlay.offsetWidth;
+      overlay.classList.add("shine");
+      setTimeout(() => {
+        if(pick){
+          verseEl.textContent = "“" + pick.stanza + "”";
+          signatureEl.textContent = "— " + pick.signature;
+        }
+      }, 550);
+    }
+
+    function closeOracle(){
+      overlay.classList.remove("show", "shine");
+    }
+
+    btnOpen.addEventListener("click", openOracle);
+    closeBtn.addEventListener("click", closeOracle);
+    overlay.addEventListener("click", (e) => { if(e.target === overlay) closeOracle(); });
+  })();
+
+  // ============================================================
+  //  CORRECTOR DE ORTOGRAFÍA (revisión bajo demanda con LanguageTool)
+  // ============================================================
+  (function(){
+    const btn = document.getElementById("poemSpellcheckBtn");
+    const panel = document.getElementById("poemSpellcheckPanel");
+    if(!btn) return;
+
+    btn.addEventListener("click", async () => {
+      const text = document.getElementById("poemContent").value.trim();
+      if(!text){
+        panel.innerHTML = `<div class="sc-item sc-ok">escribe algo primero para poder revisarlo.</div>`;
+        panel.classList.add("show");
+        return;
+      }
+      btn.classList.add("checking");
+      panel.classList.add("show");
+      panel.innerHTML = `<div class="sc-item sc-ok">revisando ortografía...</div>`;
+      try{
+        const resp = await fetch("https://api.languagetool.org/v2/check", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: "text=" + encodeURIComponent(text) + "&language=es"
+        });
+        if(!resp.ok) throw new Error("respuesta no válida");
+        const data = await resp.json();
+        const matches = (data.matches || []).slice(0, 12);
+        if(matches.length === 0){
+          panel.innerHTML = `<div class="sc-item sc-ok">no se encontraron errores. tu poema está impecable ✧</div>`;
+        }else{
+          panel.innerHTML = matches.map(m => {
+            const wrong = escapeHtml(text.substring(m.offset, m.offset + m.length));
+            const suggestion = m.replacements && m.replacements[0] ? escapeHtml(m.replacements[0].value) : null;
+            return `<div class="sc-item"><span class="sc-wrong">${wrong}</span>${suggestion ? ` → <span class="sc-sugg">${suggestion}</span>` : ""}<br><span class="sc-ok" style="font-size:11px;">${escapeHtml(m.message || "")}</span></div>`;
+          }).join("");
+        }
+      }catch(err){
+        panel.innerHTML = `<div class="sc-item sc-ok">no se pudo conectar al corrector en este momento. tu navegador también subraya errores mientras escribes.</div>`;
+      }finally{
+        btn.classList.remove("checking");
+      }
+    });
+  })();
 
 </script>
