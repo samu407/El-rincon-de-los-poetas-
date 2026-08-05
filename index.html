@@ -1032,6 +1032,24 @@
     .soulmap-poem-inner h3{ font-size:1.4rem; }
     .soulmap-poem-inner .body{ font-size:1.02rem; }
   }
+
+  /* ================= MODO "SOMBRA Y PERGAMINO" (revelado con scroll) ================= */
+  .pergamino-reveal{ position:relative; }
+  .pergamino-ghost, .pergamino-ink{ margin:0; }
+  .pergamino-ghost{ opacity:0.28; }
+  .pergamino-ink{
+    position:absolute; top:0; left:0; right:0;
+    -webkit-mask-image:linear-gradient(to bottom, #000 0%, #000 var(--reveal,0%), rgba(0,0,0,0) calc(var(--reveal,0%) + 9%), rgba(0,0,0,0) 100%);
+    mask-image:linear-gradient(to bottom, #000 0%, #000 var(--reveal,0%), rgba(0,0,0,0) calc(var(--reveal,0%) + 9%), rgba(0,0,0,0) 100%);
+    text-shadow:0 0 12px rgba(201,169,97,0.35);
+  }
+  .soulmap-poem-inner .pergamino-ink{ text-shadow:0 0 15px rgba(233,216,168,0.4); }
+  .pergamino-brush{
+    position:absolute; left:-4%; width:108%; height:2px; top:0;
+    background:linear-gradient(90deg, transparent, rgba(201,169,97,0.95), transparent);
+    box-shadow:0 0 12px 3px rgba(201,169,97,0.55);
+    opacity:0; transition:opacity 0.25s ease; pointer-events:none;
+  }
   .notif-empty{ padding:24px 16px; text-align:center; font-family:'Inter', sans-serif; font-size:12px; color:var(--ink-faint); }
 
   /* ================= BOTÓN COMPARTIR IMAGEN EN LA TARJETA ================= */
@@ -2668,7 +2686,11 @@ async function searchSpotifyTrack(queryText) {
     ` : `
       ${poem.category ? `<span class="poem-tag-badge">#${escapeHtml(poem.category)}</span>` : ""}
       ${poem.title ? `<h2 class="poem-title">${escapeHtml(poem.title)}</h2>` : ""}
-      <p class="poem-content">${escapeHtml(poem.content)}</p>
+      <div class="pergamino-reveal">
+        <p class="poem-content pergamino-ghost">${escapeHtml(poem.content)}</p>
+        <p class="poem-content pergamino-ink" aria-hidden="true">${escapeHtml(poem.content)}</p>
+        <div class="pergamino-brush"></div>
+      </div>
     `;
 
     return `
@@ -2792,6 +2814,7 @@ async function searchSpotifyTrack(queryText) {
       poemsLimit += POEMS_PAGE_SIZE;
       attachPoemsListener();
     });
+    updatePergaminoReveal();
   }
 
   function attachWallEvents(container){
@@ -2928,6 +2951,7 @@ async function searchSpotifyTrack(queryText) {
     favList.innerHTML = favPoems.length
       ? favPoems.map(p => renderPoemCard(p)).join("")
       : `<div class="favorites-empty-hint sans">todavía no has guardado ningún poema. toca la estrella de un poema para añadirlo aquí.</div>`;
+    updatePergaminoReveal();
   }
 
   // ============================================================
@@ -3030,6 +3054,7 @@ async function searchSpotifyTrack(queryText) {
     list.innerHTML = poems.length
       ? poems.map(p => renderPoemCard(p, { hideAuthor: true })).join("")
       : `<div class="empty-state sans">esta persona aún no ha publicado poemas.</div>`;
+    updatePergaminoReveal();
   }
 
   // ============================================================
@@ -3687,13 +3712,20 @@ async function searchSpotifyTrack(queryText) {
     soulMapPoemInner.innerHTML = `
       <span class="eyebrow">${poem.category ? `#${escapeHtml(poem.category)}` : "un verso en el universo"}</span>
       <h3>${escapeHtml(poem.title && poem.title.trim() ? poem.title : "sin título")}</h3>
-      <div class="body">${escapeHtml(poem.content || "")}</div>
+      <div class="body">
+        <div class="pergamino-reveal">
+          <p class="pergamino-ghost">${escapeHtml(poem.content || "")}</p>
+          <p class="pergamino-ink" aria-hidden="true">${escapeHtml(poem.content || "")}</p>
+          <div class="pergamino-brush"></div>
+        </div>
+      </div>
       <div class="meta">
         <span>${escapeHtml(name)}</span><span>·</span><span>${star.likeCount} ${star.likeCount === 1 ? "eco" : "ecos"}</span>
       </div>
       <span class="soulmap-poem-open-link" id="soulMapGoToWall">ver esta estrella en el muro ↗</span>
     `;
     soulMapPoemCard.classList.add("show");
+    updatePergaminoReveal();
     document.getElementById("soulMapGoToWall").addEventListener("click", () => {
       closeSoulMap();
       showView("wall");
@@ -3768,6 +3800,46 @@ async function searchSpotifyTrack(queryText) {
   window.addEventListener("resize", () => {
     if(soulMapOverlay.classList.contains("show")) resizeSoulMapCanvas();
   });
+
+  // ============================================================
+  //  MODO "SOMBRA Y PERGAMINO" — revelado de texto con el scroll
+  // ============================================================
+  const PERGAMINO_LINE_RATIO = 0.62; // "línea de lectura" fija, al 62% de la altura de la pantalla
+  const PERGAMINO_MARGIN = 400;      // px de margen para saltarnos elementos muy lejos de la vista
+
+  function updatePergaminoReveal(){
+    const lineY = window.innerHeight * PERGAMINO_LINE_RATIO;
+    document.querySelectorAll(".pergamino-ink").forEach(inkEl => {
+      const rect = inkEl.getBoundingClientRect();
+      if(rect.bottom < -PERGAMINO_MARGIN || rect.top > window.innerHeight + PERGAMINO_MARGIN) return;
+      if(rect.height <= 0) return;
+
+      let progress = (lineY - rect.top) / rect.height;
+      progress = Math.max(0, Math.min(1, progress));
+      inkEl.style.setProperty("--reveal", `${(progress * 100).toFixed(1)}%`);
+
+      const brush = inkEl.parentElement ? inkEl.parentElement.querySelector(".pergamino-brush") : null;
+      if(brush){
+        const showBrush = progress > 0.015 && progress < 0.985;
+        brush.style.opacity = showBrush ? "1" : "0";
+        brush.style.top = `${(progress * 100).toFixed(1)}%`;
+      }
+    });
+  }
+
+  let pergaminoScrollScheduled = false;
+  function schedulePergaminoUpdate(){
+    if(pergaminoScrollScheduled) return;
+    pergaminoScrollScheduled = true;
+    requestAnimationFrame(() => {
+      updatePergaminoReveal();
+      pergaminoScrollScheduled = false;
+    });
+  }
+  // capture:true permite detectar el scroll también dentro de contenedores internos
+  // (como la tarjeta de poema en pantalla completa del mapa de las almas)
+  document.addEventListener("scroll", schedulePergaminoUpdate, { passive: true, capture: true });
+  window.addEventListener("resize", schedulePergaminoUpdate);
 
   // ============================================================
   //  BÚSQUEDA DE POETAS
