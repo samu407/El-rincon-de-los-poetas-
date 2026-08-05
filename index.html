@@ -1197,6 +1197,90 @@
   .spellcheck-panel .sc-sugg{ color:var(--gold); }
   .spellcheck-panel .sc-ok{ color:var(--ink-dim); }
 
+  /* ================= RELOJ DE ARENA POÉTICO ================= */
+  .hourglass-overlay{
+    position:fixed; inset:0; z-index:210; background:rgba(4,4,5,0.94);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px;
+    opacity:0; pointer-events:none; padding:30px; transition:opacity 0.5s ease;
+  }
+  .hourglass-overlay.show{ opacity:1; pointer-events:auto; }
+  .hourglass-spotlight{ max-width:560px; width:100%; text-align:center; position:relative; padding:50px 30px; }
+  .hourglass-spotlight::before{
+    content:""; position:absolute; inset:-70px -40px; z-index:-1;
+    background:radial-gradient(ellipse at center, rgba(242,237,228,0.09), transparent 65%);
+  }
+  .hourglass-title{ font-family:'Playfair Display', serif; font-style:italic; color:var(--gold); font-size:1.1rem; margin:0 0 18px; opacity:0.9; }
+  .hourglass-text{ font-family:'EB Garamond', serif; font-size:1.5rem; line-height:1.85; color:#f2ede4; white-space:pre-wrap; margin:0; min-height:2em; }
+  .hourglass-cursor{ display:inline-block; color:var(--lavender); animation:hourglassBlink 0.9s steps(1) infinite; }
+  @keyframes hourglassBlink{ 50%{ opacity:0; } }
+  .hourglass-signature{ font-family:'Inter', sans-serif; font-size:12px; color:var(--ink-faint); margin-top:22px; opacity:0; transition:opacity 0.6s ease; }
+  .hourglass-signature.show{ opacity:1; }
+  .hourglass-hint{ font-family:'Inter', sans-serif; font-size:11px; color:rgba(242,237,228,0.4); }
+
+  /* ================= PALOMAS DE PAPEL ================= */
+  .paper-crane-clone{
+    position:fixed; margin:0 !important; transform-origin:center center;
+    transition:transform 1.3s cubic-bezier(.5,0,.75,0), opacity 1.1s ease-in 0.2s, filter 0.5s ease;
+    will-change:transform, opacity; pointer-events:none; z-index:250;
+  }
+  .paper-crane-clone::after{
+    content:""; position:absolute; inset:0; opacity:0; pointer-events:none;
+    background:
+      repeating-linear-gradient(115deg, transparent 0 18px, rgba(0,0,0,0.16) 18px 19px, transparent 19px 40px),
+      repeating-linear-gradient(25deg, transparent 0 24px, rgba(255,255,255,0.12) 24px 25px, transparent 25px 50px);
+    transition:opacity 0.4s ease;
+  }
+  .paper-crane-clone.flying{
+    transform:translateY(-140vh) translateX(60px) rotate(22deg) scale(0.5) rotateX(40deg);
+    opacity:0; filter:brightness(1.25) blur(0.3px);
+  }
+  .paper-crane-clone.flying::after{ opacity:1; }
+  .verse-toast{
+    position:fixed; left:50%; top:26px; transform:translateX(-50%) translateY(-14px);
+    background:var(--bg-panel); border:1px solid var(--hairline); border-radius:100px;
+    padding:10px 20px; font-family:'Inter', sans-serif; font-size:12.5px; color:var(--ink-dim);
+    box-shadow:var(--shadow-deep); z-index:260; opacity:0; visibility:hidden;
+    transition:opacity 0.35s ease, transform 0.35s ease, visibility 0.35s ease;
+  }
+  .verse-toast.show{ opacity:1; visibility:visible; transform:translateX(-50%) translateY(0); }
+
+  /* ================= SELLO DE CERA ================= */
+  .wax-seal-btn{
+    position:absolute; top:10px; right:10px; width:38px; height:38px; border-radius:50%;
+    border:none; cursor:pointer; z-index:3;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 5px rgba(0,0,0,0.3);
+    transition:transform 0.25s ease;
+    background:radial-gradient(circle at 35% 30%, #6b6b6b, #3a3a3a 62%, #232323 100%);
+    color:rgba(242,237,228,0.55);
+  }
+  .wax-seal-btn.sealed{
+    background:radial-gradient(circle at 35% 30%, #e3b56d, #a9762f 60%, #6e4a1c 100%);
+    color:#3b2a12;
+  }
+  .wax-seal-btn:hover{ transform:scale(1.1); }
+  .wax-seal-btn svg{ width:16px; height:16px; position:relative; z-index:2; }
+  .wax-seal-btn.unsealed{ opacity:0.6; }
+  .wax-drip{
+    position:absolute; top:34px; left:50%; width:9px;
+    background:linear-gradient(to bottom, #c9a961, #8a5a1f);
+    border-radius:0 0 6px 6px; transform:translateX(-50%);
+    animation:waxMeltDrip 0.9s ease-out forwards;
+    pointer-events:none;
+  }
+  @keyframes waxMeltDrip{
+    0%{ height:0; opacity:0; }
+    25%{ opacity:1; }
+    75%{ height:22px; }
+    100%{ height:16px; opacity:0.9; }
+  }
+  .wax-seal-btn.sealing{ animation:waxSealPulse 0.8s ease; }
+  @keyframes waxSealPulse{
+    0%{ box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 5px rgba(0,0,0,0.3); }
+    40%{ box-shadow:0 0 18px 4px rgba(201,169,97,0.6), inset 0 -3px 5px rgba(0,0,0,0.3); }
+    100%{ box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 5px rgba(0,0,0,0.3); }
+  }
+
   a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
     outline:2px solid var(--lavender); outline-offset:3px;
   }
@@ -1287,6 +1371,17 @@
     <p class="oracle-verse-signature" id="oracleVerseSignature"></p>
     <button class="oracle-close-btn" id="oracleCloseBtn">volver al espejo</button>
   </div>
+</div>
+
+<!-- ============ RELOJ DE ARENA POÉTICO (lectura a cámara lenta) ============ -->
+<div class="hourglass-overlay" id="hourglassOverlay">
+  <div class="hourglass-spotlight">
+    <p class="hourglass-title" id="hourglassPoemTitle"></p>
+    <p class="hourglass-text"><span id="hourglassRevealed"></span><span class="hourglass-cursor">|</span></p>
+    <p class="hourglass-signature" id="hourglassPoemSignature"></p>
+  </div>
+  <button class="oracle-close-btn hourglass-close-btn" id="hourglassCloseBtn">cerrar el reloj</button>
+  <p class="hourglass-hint">toca en cualquier lugar para revelar el poema al instante</p>
 </div>
 
 <!-- ============ ELEMENTO OCULTO PARA GENERAR TARJETAS POSTAL ============ -->
@@ -2887,8 +2982,19 @@ async function searchSpotifyTrack(queryText) {
       </div>
     `;
 
+    // "sello de cera": honor especial cuando el poema acumula interacciones o el autor sube de nivel
+    const totalInteractions = likeCount + comments.length;
+    const sealEligible = totalInteractions >= 10 || authorLevel >= 5;
+    const isSealed = !!poem.sealed;
+    const waxSealHtml = (sealEligible || isSealed) ? `
+      <button class="wax-seal-btn ${isSealed ? "sealed" : "unsealed"}" data-action="wax-seal" data-id="${poem.id}" title="${isSealed ? "sello de honor del espejo" : "estampar sello de cera"}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3.5 0-6 2.7-6 6.2 0 2.6 1.5 4.4 2.7 5.8.7.8 1.3 1.5 1.3 2.3V19h4v-1.7c0-.8.6-1.5 1.3-2.3 1.2-1.4 2.7-3.2 2.7-5.8C18 5.7 15.5 3 12 3Z"/><path d="M10 21h4"/></svg>
+      </button>
+    ` : "";
+
     return `
       <article class="poem-card ${isCreator && !poem.pseudonym ? "creator-card" : ""} ${options.isFeatured ? "featured-card" : ""}" data-poem-id="${poem.id}">
+        ${waxSealHtml}
         ${options.isFeatured ? `<div class="featured-label">✦ poema del día</div>` : ""}
         ${ownerActions}
         ${authorRow}
@@ -2914,6 +3020,12 @@ async function searchSpotifyTrack(queryText) {
           </button>
           <button class="react-btn postcard-share-btn" data-action="share-image" data-id="${poem.id}" title="compartir como imagen">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 16l-4.5-4.5a2 2 0 0 0-2.8 0L9 16"/></svg>
+          </button>
+          <button class="react-btn hourglass-trigger-btn" data-action="hourglass" data-id="${poem.id}" title="llenar el reloj — leer a cámara lenta">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 21h12"/><path d="M7 3c0 4.2 3 6.3 5 8-2 1.7-5 3.8-5 8M17 3c0 4.2-3 6.3-5 8 2 1.7 5 3.8 5 8"/></svg>
+          </button>
+          <button class="react-btn paper-crane-trigger-btn" data-action="paper-crane" data-id="${poem.id}" title="lanzar al aire">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l20-9-9 20-2-8-8-3Z"/></svg>
           </button>
           <button class="comment-toggle" data-action="toggle-comments" data-id="${poem.id}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.5 9 9 0 0 1-3.5-.7L3 21l1.8-5a8.4 8.4 0 0 1-.8-3.5A8.4 8.4 0 0 1 12.9 3 8.5 8.5 0 0 1 21 11.5Z"/></svg>
@@ -3025,6 +3137,9 @@ async function searchSpotifyTrack(queryText) {
       const sendBtn = e.target.closest('[data-action="send-comment"]');
       const authorRow = e.target.closest('[data-action="open-author"]');
       const deleteBtn = e.target.closest('[data-action="delete-poem"]');
+      const hourglassBtn = e.target.closest('[data-action="hourglass"]');
+      const paperCraneBtn = e.target.closest('[data-action="paper-crane"]');
+      const waxSealBtn = e.target.closest('[data-action="wax-seal"]');
 
       if(likeBtn) toggleReaction(likeBtn.dataset.id, "like");
       if(dislikeBtn) toggleReaction(dislikeBtn.dataset.id, "dislike");
@@ -3084,6 +3199,10 @@ async function searchSpotifyTrack(queryText) {
         const uid = authorRow.dataset.uid;
         openUserProfile(uid);
       }
+
+      if(hourglassBtn) openHourglass(hourglassBtn.dataset.id);
+      if(paperCraneBtn) launchPaperCrane(paperCraneBtn.dataset.id, container);
+      if(waxSealBtn) stampWaxSeal(waxSealBtn.dataset.id, waxSealBtn);
     });
 
     container.addEventListener("keydown", (e) => {
@@ -4360,8 +4479,165 @@ async function searchSpotifyTrack(queryText) {
   })();
 
   // ============================================================
-  //  CORRECTOR DE ORTOGRAFÍA (revisión bajo demanda con LanguageTool)
+  //  RELOJ DE ARENA POÉTICO (lectura a cámara lenta, letra a letra)
   // ============================================================
+  let hourglassTypeTimer = null;
+  let hourglassFullText = "";
+  let hourglassRevealIndex = 0;
+  let hourglassAudioCtx = null;
+
+  function ensureHourglassAudio(){
+    if(!hourglassAudioCtx) hourglassAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(hourglassAudioCtx.state === "suspended") hourglassAudioCtx.resume();
+    return hourglassAudioCtx;
+  }
+
+  function playTypewriterClick(){
+    try{
+      const ctx = ensureHourglassAudio();
+      const bufferSize = Math.floor(ctx.sampleRate * 0.025);
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for(let i=0;i<bufferSize;i++) data[i] = (Math.random()*2-1) * (1 - i/bufferSize);
+      const src = ctx.createBufferSource();
+      src.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = "highpass";
+      filter.frequency.value = 2000 + Math.random()*900;
+      const gain = ctx.createGain();
+      gain.gain.value = 0.16;
+      src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
+      src.start();
+    }catch(err){ /* silencioso si el navegador bloquea audio sin interacción previa */ }
+  }
+
+  function hourglassTypeStep(){
+    const revealedEl = document.getElementById("hourglassRevealed");
+    const signatureEl = document.getElementById("hourglassPoemSignature");
+    if(hourglassRevealIndex >= hourglassFullText.length){
+      signatureEl.classList.add("show");
+      hourglassTypeTimer = null;
+      return;
+    }
+    const ch = hourglassFullText[hourglassRevealIndex];
+    revealedEl.textContent += ch;
+    if(ch.trim() !== "") playTypewriterClick();
+    hourglassRevealIndex++;
+    const delay = ch === "\n" ? 240 : (ch === "," || ch === "." || ch === ";" ? 190 : 30 + Math.random()*45);
+    hourglassTypeTimer = setTimeout(hourglassTypeStep, delay);
+  }
+
+  function hourglassRevealInstantly(){
+    if(hourglassTypeTimer){ clearTimeout(hourglassTypeTimer); hourglassTypeTimer = null; }
+    document.getElementById("hourglassRevealed").textContent = hourglassFullText;
+    hourglassRevealIndex = hourglassFullText.length;
+    document.getElementById("hourglassPoemSignature").classList.add("show");
+  }
+
+  function openHourglass(poemId){
+    const poem = poemsCache[poemId];
+    if(!poem) return;
+    const overlay = document.getElementById("hourglassOverlay");
+    const titleEl = document.getElementById("hourglassPoemTitle");
+    const signatureEl = document.getElementById("hourglassPoemSignature");
+    if(hourglassTypeTimer){ clearTimeout(hourglassTypeTimer); hourglassTypeTimer = null; }
+    hourglassFullText = poem.content || "";
+    hourglassRevealIndex = 0;
+    document.getElementById("hourglassRevealed").textContent = "";
+    signatureEl.classList.remove("show");
+    titleEl.textContent = poem.title || "";
+    titleEl.style.display = poem.title ? "block" : "none";
+    const authorUser = usersCache[poem.authorUid];
+    const signature = poem.pseudonym ? (poem.authorName || "un alma enigmática") : ((authorUser && authorUser.name) || poem.authorName || "anónimo");
+    signatureEl.textContent = "— " + signature;
+    overlay.classList.add("show");
+    hourglassTypeStep();
+  }
+
+  function closeHourglass(){
+    if(hourglassTypeTimer){ clearTimeout(hourglassTypeTimer); hourglassTypeTimer = null; }
+    document.getElementById("hourglassOverlay").classList.remove("show");
+  }
+
+  document.getElementById("hourglassCloseBtn").addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeHourglass();
+  });
+  document.getElementById("hourglassOverlay").addEventListener("click", (e) => {
+    if(e.target.closest(".hourglass-close-btn")) return;
+    hourglassRevealInstantly();
+  });
+
+  // ============================================================
+  //  PALOMAS DE PAPEL (compartir liberando el poema al aire)
+  // ============================================================
+  function showVerseToast(text){
+    let toast = document.getElementById("verseToast");
+    if(!toast){
+      toast = document.createElement("div");
+      toast.id = "verseToast";
+      toast.className = "verse-toast";
+      document.body.appendChild(toast);
+    }
+    toast.textContent = text;
+    toast.classList.add("show");
+    clearTimeout(showVerseToast._t);
+    showVerseToast._t = setTimeout(() => toast.classList.remove("show"), 2600);
+  }
+
+  function launchPaperCrane(poemId, scopeEl){
+    const scope = scopeEl || document;
+    const card = scope.querySelector(`[data-poem-id="${poemId}"]`);
+    if(!card || card.classList.contains("is-flying")) return;
+    const rect = card.getBoundingClientRect();
+    const clone = card.cloneNode(true);
+    clone.classList.add("paper-crane-clone");
+    clone.style.top = rect.top + "px";
+    clone.style.left = rect.left + "px";
+    clone.style.width = rect.width + "px";
+    document.body.appendChild(clone);
+    card.classList.add("is-flying");
+    card.style.visibility = "hidden";
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => clone.classList.add("flying"));
+    });
+
+    setTimeout(() => {
+      clone.remove();
+      card.style.visibility = "visible";
+      card.classList.remove("is-flying");
+      copyPoemFormatted(poemId);
+      showVerseToast("tu verso ha volado libre por el cielo ✦ (también se copió para compartir)");
+    }, 1350);
+  }
+
+  // ============================================================
+  //  SELLO DE CERA (firma de honor)
+  // ============================================================
+  function playWaxMeltFX(btnEl){
+    if(!btnEl) return;
+    const drip = document.createElement("div");
+    drip.className = "wax-drip";
+    btnEl.appendChild(drip);
+    setTimeout(() => drip.remove(), 1000);
+    btnEl.classList.add("sealing");
+    setTimeout(() => btnEl.classList.remove("sealing"), 850);
+  }
+
+  async function stampWaxSeal(poemId, btnEl){
+    const poem = poemsCache[poemId];
+    if(!poem) return;
+    playWaxMeltFX(btnEl);
+    if(poem.sealed) return; // ya sellado: solo repetimos el efecto visual
+    try{
+      await update(ref(db, `poems/${poemId}`), { sealed: true, sealedAt: Date.now() });
+    }catch(err){
+      console.error("no se pudo estampar el sello de cera:", err);
+    }
+  }
+
+
   (function(){
     const btn = document.getElementById("poemSpellcheckBtn");
     const panel = document.getElementById("poemSpellcheckPanel");
