@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>el espejo de las almas</title>
+<title>El espejo de las almas</title>
 <meta name="description" content="una comunidad de poetas anónimos">
 
 <link rel="icon" type="image/jpeg" href="Logo-poetas.jpeg">
@@ -1281,6 +1281,87 @@
     100%{ box-shadow:0 4px 10px rgba(0,0,0,0.35), inset 0 -3px 5px rgba(0,0,0,0.3); }
   }
 
+  /* ================= EL FUEGO DEL MURO ================= */
+  .header-flame-wrap{
+    position:relative; display:inline-block; width:22px; height:27px;
+    vertical-align:-5px; margin-left:6px;
+  }
+  .header-flame-svg{
+    width:100%; height:100%; transform-origin:bottom center;
+    filter:drop-shadow(0 0 calc(3px + var(--flame-glow,0.3) * 9px) rgba(255,150,50,calc(0.3 + var(--flame-glow-op,0.3) * 0.6)));
+    animation:flameFlicker 1.8s ease-in-out infinite;
+  }
+  @keyframes flameFlicker{
+    0%,100%{ transform:scaleY(1) scaleX(1) rotate(-1deg); }
+    25%{ transform:scaleY(1.06) scaleX(0.95) rotate(1.5deg); }
+    50%{ transform:scaleY(0.94) scaleX(1.05) rotate(-2deg); }
+    75%{ transform:scaleY(1.04) scaleX(0.97) rotate(1deg); }
+  }
+  .header-spark{
+    position:absolute; bottom:55%; left:50%; border-radius:50%;
+    background:radial-gradient(circle, rgba(255,217,138,0.95), rgba(255,120,40,0));
+    pointer-events:none; animation:fxRise 1.7s linear forwards;
+  }
+
+  /* ================= TINTERO DEL TIEMPO (tinta por sentimiento) ================= */
+  .poem-card.ink-amor{ --ink-tint:#d68fa0; }
+  .poem-card.ink-desamor{ --ink-tint:#8a8f98; }
+  .poem-card.ink-nostalgia{ --ink-tint:#b08a5a; }
+  .poem-card.ink-soledad{ --ink-tint:#6f83a8; }
+  .poem-card.ink-filosofia{ --ink-tint:#8a6bb0; }
+  .poem-card.ink-abismo{ --ink-tint:#7a4fd6; }
+  .poem-card.ink-esperanza{ --ink-tint:#c9a961; }
+  .poem-card[class*="ink-"]{
+    border-left:2px solid rgba(180,150,255,0.25); padding-left:14px; margin-left:-14px;
+    border-left-color:var(--ink-tint);
+  }
+  .poem-card[class*="ink-"] .poem-title{ color:var(--ink-tint); }
+  .poem-card.ink-nostalgia .poem-content{ color:#c9b393; filter:sepia(0.18); }
+  .poem-card.ink-abismo .poem-content{ color:#c3a9f2; text-shadow:0 0 10px rgba(122,79,214,0.3); }
+  .poem-card.ink-abismo .pergamino-ink{ text-shadow:0 0 14px rgba(122,79,214,0.5); }
+  .poem-card.ink-esperanza .poem-content{ color:#e5d3a4; text-shadow:0 0 8px rgba(201,169,97,0.25); }
+  .poem-card.ink-amor .poem-content{ color:#e0bcc5; }
+  .poem-card.ink-desamor .poem-content{ color:#b3b6bd; }
+  .poem-card.ink-soledad .poem-content{ color:#a9b7d1; }
+  .poem-card.ink-filosofia .poem-content{ color:#c3aee0; }
+  .poem-tag-badge.ink-nostalgia{ color:#b08a5a; background:rgba(176,138,90,0.12); border-color:rgba(176,138,90,0.3); }
+  .poem-tag-badge.ink-abismo{ color:#a97ff0; background:rgba(122,79,214,0.14); border-color:rgba(122,79,214,0.35); }
+  .poem-tag-badge.ink-esperanza{ color:var(--gold); background:var(--gold-soft); border-color:rgba(201,169,97,0.35); }
+  .poem-tag-badge.ink-amor{ color:#d68fa0; background:rgba(214,143,160,0.12); border-color:rgba(214,143,160,0.3); }
+  .poem-tag-badge.ink-desamor{ color:#9298a0; background:rgba(146,152,160,0.12); border-color:rgba(146,152,160,0.3); }
+  .poem-tag-badge.ink-soledad{ color:#7f92b8; background:rgba(127,146,184,0.12); border-color:rgba(127,146,184,0.3); }
+  .poem-tag-badge.ink-filosofia{ color:#a48bd1; background:rgba(164,139,209,0.12); border-color:rgba(164,139,209,0.3); }
+
+  /* ================= EFECTO VAHO / CRISTAL EMPAÑADO ================= */
+  .frost-wrap{ position:relative; }
+  .frost-canvas{
+    position:absolute; inset:-8px; width:calc(100% + 16px); height:calc(100% + 16px);
+    cursor:crosshair; touch-action:none; border-radius:10px; z-index:4;
+  }
+  .frost-hint{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center;
+    font-family:'Inter', sans-serif; font-size:12px; color:rgba(242,237,228,0.75); letter-spacing:0.03em;
+    pointer-events:none; z-index:5; padding:20px;
+  }
+
+  /* ================= EL RELOJ ASTRONÓMICO (fases de la luna) ================= */
+  body.moon-llena{ --moon-tint:rgba(210,220,255,0.05); }
+  body.moon-nueva{ --moon-tint:rgba(0,0,0,0.04); }
+  body.moon-creciente, body.moon-menguante{ --moon-tint:rgba(201,169,97,0.03); }
+  body[class*="moon-"]::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:1;
+    background:radial-gradient(ellipse at top, var(--moon-tint,transparent), transparent 60%);
+  }
+  .fullmoon-badge{
+    font-family:'Inter', sans-serif; font-size:11px; color:#e9e3c9;
+    background:rgba(233,227,201,0.1); border:1px solid rgba(233,227,201,0.3);
+    padding:2px 9px; border-radius:100px;
+  }
+  .moon-phase-indicator{
+    display:inline-flex; align-items:center; gap:6px; font-family:'Inter', sans-serif;
+    font-size:11px; color:var(--ink-faint); letter-spacing:0.03em;
+  }
+
   a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
     outline:2px solid var(--lavender); outline-offset:3px;
   }
@@ -1289,7 +1370,7 @@
 <body>
 
 <nav id="topNav">
-  <div class="nav-logo" id="navLogo">el espejo</div>
+  <div class="nav-logo" id="navLogo">El espejo</div>
 
   <div class="nav-search">
     <input type="text" id="searchInput" placeholder="buscar a un poeta..." autocomplete="off">
@@ -1404,7 +1485,7 @@
 
     <header class="page-header">
       <div class="eyebrow sans">una comunidad de poetas</div>
-      <h1 class="title">el espejo de las almas</h1>
+      <h1 class="title">el espejo de las almas <span class="header-flame-wrap" id="headerFlame" title="la llama del muro"><svg class="header-flame-svg" viewBox="0 0 24 28" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="flameGrad" cx="50%" cy="75%" r="70%"><stop offset="0%" stop-color="#fff2c4"/><stop offset="45%" stop-color="#ffb347"/><stop offset="80%" stop-color="#e8622c"/><stop offset="100%" stop-color="#a83e1a"/></radialGradient></defs><path fill="url(#flameGrad)" d="M12 1C7.5 6.5 4.5 10.5 4.5 15.5a7.5 7.5 0 0 0 15 0c0-3.6-2-6.2-3.4-8.2.4 2.4-1 3.6-2 2.6C12.7 8.4 13 4.5 12 1Z"/></svg></span></h1>
       <p class="subtitle">cada quien deja aquí lo que no cabe en la garganta. nadie firma con su nombre completo — sólo con lo que quiere ser recordado.</p>
       <div class="flourish">⁘</div>
     </header>
@@ -1455,6 +1536,12 @@
           publicar bajo un seudónimo
         </label>
         <input type="text" id="pseudonymInput" placeholder="un alma enigmática" style="display:none;">
+      </div>
+      <div class="pseudonym-row">
+        <label class="sans">
+          <input type="checkbox" id="secretToggle">
+          🌫️ marcar como secreto / profundo (se revela limpiando el cristal)
+        </label>
       </div>
       <!-- ============================================================ -->
 
@@ -1736,7 +1823,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
     getDatabase, ref, push, set, update, remove, onValue, get, increment,
-    query, orderByChild, limitToLast
+    query, orderByChild, limitToLast, onDisconnect
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
   import {
     getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged,
@@ -1798,6 +1885,7 @@
   let activeChatId = null;         // id de la conversación de chat privado abierta
   let activeChatUid = null;        // uid del poeta con quien se conversa
   let chatUnsubscribe = null;      // función para desuscribirse del listener del chat activo
+  let currentMoonPhase = null;     // fase lunar actual calculada al cargar la página
   const THEME_KEY = "espejo_theme";
 
   const AVATAR_ICONS = {
@@ -2544,7 +2632,11 @@ async function searchSpotifyTrack(queryText) {
   });
 
   // ---------- etiqueta / sentimiento al publicar ----------
-  const POEM_TAGS = ["Amor", "Desamor", "Nostalgia", "Soledad", "Filosofía"];
+  const POEM_TAGS = ["Amor", "Desamor", "Nostalgia", "Soledad", "Filosofía", "Abismo", "Esperanza"];
+  const TAG_INK_MAP = {
+    "Amor": "ink-amor", "Desamor": "ink-desamor", "Nostalgia": "ink-nostalgia",
+    "Soledad": "ink-soledad", "Filosofía": "ink-filosofia", "Abismo": "ink-abismo", "Esperanza": "ink-esperanza"
+  };
   let selectedTag = null;
   const tagSelectRow = document.getElementById("tagSelectRow");
   tagSelectRow.innerHTML = POEM_TAGS.map(tag =>
@@ -2574,6 +2666,7 @@ async function searchSpotifyTrack(queryText) {
 
     const usePseudonym = pseudonymToggle.checked;
     const pseudonymName = pseudonymInput.value.trim() || "un alma enigmática";
+    const markSecret = !!(document.getElementById("secretToggle") && document.getElementById("secretToggle").checked);
 
     publishBtn.disabled = true;
     publishBtn.textContent = "publicando...";
@@ -2587,6 +2680,8 @@ async function searchSpotifyTrack(queryText) {
         authorAvatarIcon: usePseudonym ? "moon" : (myUserData.avatarIcon || "feather"),
         pseudonym: usePseudonym,
         category: selectedTag || null,
+        secret: markSecret,
+        fullMoon: currentMoonPhase && currentMoonPhase.name === "Luna Llena",
         timestamp: Date.now(),
         music: selectedSpotifyTrack || null, // Guardamos la música seleccionada
         reactions: {},
@@ -2598,6 +2693,7 @@ async function searchSpotifyTrack(queryText) {
       pseudonymToggle.checked = false;
       pseudonymInput.value = "";
       pseudonymInput.style.display = "none";
+      if(document.getElementById("secretToggle")) document.getElementById("secretToggle").checked = false;
       selectedTag = null;
       tagSelectRow.querySelectorAll(".tag-chip-option").forEach(b => b.classList.remove("selected"));
       selectedSpotifyTrack = null;
@@ -2943,6 +3039,7 @@ async function searchSpotifyTrack(queryText) {
 
     const isOwner = !!currentUser && currentUser.uid === poem.authorUid;
     const isEditing = isOwner && editingPoemId === poem.id;
+    const inkClass = poem.category && TAG_INK_MAP[poem.category] ? TAG_INK_MAP[poem.category] : "";
 
     const ownerActions = isOwner ? `
       <div class="poem-owner-actions">
@@ -2973,12 +3070,16 @@ async function searchSpotifyTrack(queryText) {
         </div>
       </div>
     ` : `
-      ${poem.category ? `<span class="poem-tag-badge">#${escapeHtml(poem.category)}</span>` : ""}
+      ${poem.category ? `<span class="poem-tag-badge ${inkClass}">#${escapeHtml(poem.category)}</span>` : ""}
       ${poem.title ? `<h2 class="poem-title">${escapeHtml(poem.title)}</h2>` : ""}
-      <div class="pergamino-reveal">
+      <div class="pergamino-reveal ${poem.secret ? "frost-wrap" : ""}" ${poem.secret ? `data-frost-for="${poem.id}"` : ""}>
         <p class="poem-content pergamino-ghost">${escapeHtml(poem.content)}</p>
         <p class="poem-content pergamino-ink" aria-hidden="true">${escapeHtml(poem.content)}</p>
         <div class="pergamino-brush"></div>
+        ${poem.secret ? `
+          <canvas class="frost-canvas" data-frost-canvas="${poem.id}"></canvas>
+          <div class="frost-hint">🌫️ desliza para limpiar el cristal</div>
+        ` : ""}
       </div>
     `;
 
@@ -2993,7 +3094,7 @@ async function searchSpotifyTrack(queryText) {
     ` : "";
 
     return `
-      <article class="poem-card ${isCreator && !poem.pseudonym ? "creator-card" : ""} ${options.isFeatured ? "featured-card" : ""}" data-poem-id="${poem.id}">
+      <article class="poem-card ${isCreator && !poem.pseudonym ? "creator-card" : ""} ${options.isFeatured ? "featured-card" : ""} ${inkClass}" data-poem-id="${poem.id}">
         ${waxSealHtml}
         ${options.isFeatured ? `<div class="featured-label">✦ poema del día</div>` : ""}
         ${ownerActions}
@@ -3002,6 +3103,7 @@ async function searchSpotifyTrack(queryText) {
         ${isEditing ? "" : spotifyEmbed}
         <div class="poem-meta">
           <span>${timeAgo(poem.timestamp)}</span>
+          ${poem.fullMoon ? `<span class="fullmoon-badge" title="publicado en noche de luna llena">🌕 luna llena</span>` : ""}
         </div>
         <div class="reaction-row">
           <button class="react-btn ${myReaction === "like" ? "active-like" : ""}" data-action="like" data-id="${poem.id}">
@@ -3121,6 +3223,7 @@ async function searchSpotifyTrack(queryText) {
       attachPoemsListener();
     });
     updatePergaminoReveal();
+    initFrostCanvases();
   }
 
   function attachWallEvents(container){
@@ -3265,6 +3368,7 @@ async function searchSpotifyTrack(queryText) {
       ? favPoems.map(p => renderPoemCard(p)).join("")
       : `<div class="favorites-empty-hint sans">todavía no has guardado ningún poema. toca la estrella de un poema para añadirlo aquí.</div>`;
     updatePergaminoReveal();
+    initFrostCanvases();
   }
 
   // ============================================================
@@ -3368,6 +3472,7 @@ async function searchSpotifyTrack(queryText) {
       ? poems.map(p => renderPoemCard(p, { hideAuthor: true })).join("")
       : `<div class="empty-state sans">esta persona aún no ha publicado poemas.</div>`;
     updatePergaminoReveal();
+    initFrostCanvases();
   }
 
   // ============================================================
@@ -3716,12 +3821,27 @@ async function searchSpotifyTrack(queryText) {
     chatInput.value = "";
 
     if(chatUnsubscribe) chatUnsubscribe();
+
+    // si en 8 segundos Firebase no responde (ni éxito ni error), probablemente
+    // las reglas de la base de datos están bloqueando el nodo "chats" en silencio
+    const chatIdAtOpen = activeChatId;
+    const stallTimer = setTimeout(() => {
+      if(activeChatId === chatIdAtOpen && chatMessagesBox.innerHTML.includes("cargando conversación")){
+        chatMessagesBox.innerHTML = `<div class="chat-empty sans">la conversación está tardando demasiado en cargar. esto suele deberse a las reglas de seguridad de Firebase Realtime Database, que no están permitiendo leer el nodo "chats/${chatIdAtOpen}". revisa la consola de Firebase → Realtime Database → Reglas.</div>`;
+      }
+    }, 8000);
+
     chatUnsubscribe = onValue(ref(db, `chats/${activeChatId}/messages`), (snap) => {
+      clearTimeout(stallTimer);
       const data = snap.val() || {};
       const messages = Object.entries(data)
         .map(([id, m]) => ({ id, ...m }))
         .sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
       renderChatMessages(messages);
+    }, (error) => {
+      clearTimeout(stallTimer);
+      console.error("error al leer el chat (revisa las reglas de Firebase para 'chats'):", error);
+      chatMessagesBox.innerHTML = `<div class="chat-empty sans">no se pudo cargar la conversación: ${escapeHtml(error.message || "permiso denegado")}. probablemente las reglas de Firebase Realtime Database no permiten leer "chats/${chatIdAtOpen}/messages" para tu usuario.</div>`;
     });
   }
 
@@ -3748,6 +3868,7 @@ async function searchSpotifyTrack(queryText) {
     if(!currentUser || !activeChatId) return;
     const text = chatInput.value.trim();
     if(!text) return;
+    const previousValue = text;
     chatInput.value = "";
     try{
       await push(ref(db, `chats/${activeChatId}/messages`), {
@@ -3756,7 +3877,10 @@ async function searchSpotifyTrack(queryText) {
         timestamp: Date.now()
       });
     }catch(err){
-      console.error("no se pudo enviar el mensaje:", err);
+      console.error("no se pudo enviar el mensaje (revisa las reglas de Firebase para 'chats'):", err);
+      chatInput.value = previousValue; // devolvemos el texto para que no se pierda
+      chatMessagesBox.insertAdjacentHTML("beforeend", `<div class="chat-empty sans" style="color:#e08a8a;">no se pudo enviar: ${escapeHtml(err.message || "permiso denegado")}. revisa las reglas de Firebase para "chats".</div>`);
+      chatMessagesBox.scrollTop = chatMessagesBox.scrollHeight;
     }
   }
 
@@ -4225,6 +4349,163 @@ async function searchSpotifyTrack(queryText) {
   attachPoemsListener();
 
   renderComposerState();
+
+  // ============================================================
+  //  EL FUEGO DEL MURO (llama colectiva en tiempo real)
+  // ============================================================
+  (function(){
+    const sessionId = "sess_" + Math.random().toString(36).slice(2) + "_" + Date.now();
+    const presenceRef = ref(db, `presence/${sessionId}`);
+    let connectedCount = 0;
+    let flameSparkTimer = null;
+
+    onValue(ref(db, ".info/connected"), (snap) => {
+      if(snap.val() === true){
+        set(presenceRef, true).catch(() => {});
+        onDisconnect(presenceRef).remove();
+      }
+    });
+
+    onValue(ref(db, "presence"), (snap) => {
+      connectedCount = snap.exists() ? Object.keys(snap.val()).length : 0;
+      updateFlameIntensity();
+    }, () => { /* si no hay permisos sobre "presence", la llama queda en reposo */ });
+
+    function poemsPublishedToday(){
+      const start = new Date(); start.setHours(0,0,0,0);
+      const t0 = start.getTime();
+      return Object.values(poemsCache).filter(p => (p.timestamp||0) >= t0).length;
+    }
+
+    function spawnHeaderSpark(intensity){
+      const wrap = document.getElementById("headerFlame");
+      if(!wrap || intensity < 0.28) return;
+      const spark = document.createElement("div");
+      spark.className = "header-spark";
+      const size = 2 + Math.random()*2;
+      spark.style.width = size + "px";
+      spark.style.height = size + "px";
+      spark.style.left = (38 + Math.random()*24) + "%";
+      spark.style.setProperty("--fx-drift", (Math.random()*30-15) + "px");
+      wrap.appendChild(spark);
+      setTimeout(() => spark.remove(), 1750);
+    }
+
+    function updateFlameIntensity(){
+      const wrap = document.getElementById("headerFlame");
+      if(!wrap) return;
+      const today = poemsPublishedToday();
+      const activity = connectedCount + today;
+      const intensity = Math.max(0.15, Math.min(1, activity / 12));
+      wrap.style.setProperty("--flame-glow", intensity.toFixed(2));
+      wrap.style.setProperty("--flame-glow-op", (0.3 + intensity*0.6).toFixed(2));
+      wrap.title = `${connectedCount} alma${connectedCount===1?"":"s"} reunidas ahora · ${today} poema${today===1?"":"s"} hoy`;
+      clearInterval(flameSparkTimer);
+      const rate = Math.max(260, 1600 - intensity*1300);
+      flameSparkTimer = setInterval(() => spawnHeaderSpark(intensity), rate);
+    }
+
+    updateFlameIntensity();
+    setInterval(updateFlameIntensity, 60000);
+  })();
+
+  // ============================================================
+  //  EL RELOJ ASTRONÓMICO (fases de la luna)
+  // ============================================================
+  function computeMoonPhase(date){
+    // cálculo aproximado basado en el ciclo sinódico lunar (~29.53 días)
+    const synodic = 29.53058867;
+    const knownNewMoon = Date.UTC(2000, 0, 6, 18, 14); // luna nueva de referencia
+    const diffDays = (date.getTime() - knownNewMoon) / 86400000;
+    let phase = (diffDays % synodic) / synodic;
+    if(phase < 0) phase += 1;
+    let name, icon, cssClass;
+    if(phase < 0.03 || phase > 0.97){ name = "Luna Nueva"; icon = "🌑"; cssClass = "moon-nueva"; }
+    else if(phase < 0.22){ name = "Luna Creciente"; icon = "🌒"; cssClass = "moon-creciente"; }
+    else if(phase < 0.28){ name = "Cuarto Creciente"; icon = "🌓"; cssClass = "moon-creciente"; }
+    else if(phase < 0.47){ name = "Gibosa Creciente"; icon = "🌔"; cssClass = "moon-creciente"; }
+    else if(phase < 0.53){ name = "Luna Llena"; icon = "🌕"; cssClass = "moon-llena"; }
+    else if(phase < 0.72){ name = "Gibosa Menguante"; icon = "🌖"; cssClass = "moon-menguante"; }
+    else if(phase < 0.78){ name = "Cuarto Menguante"; icon = "🌗"; cssClass = "moon-menguante"; }
+    else { name = "Luna Menguante"; icon = "🌘"; cssClass = "moon-menguante"; }
+    return { phase, name, icon, cssClass };
+  }
+
+  (function(){
+    currentMoonPhase = computeMoonPhase(new Date());
+    document.body.classList.add(currentMoonPhase.cssClass);
+    // pequeño indicador discreto junto a la firma del encabezado, si existe un lugar razonable
+    const subtitle = document.querySelector(".page-header .subtitle");
+    if(subtitle){
+      const indicator = document.createElement("div");
+      indicator.className = "moon-phase-indicator";
+      indicator.title = "fase lunar de esta noche";
+      indicator.textContent = `${currentMoonPhase.icon} ${currentMoonPhase.name}`;
+      subtitle.insertAdjacentElement("afterend", indicator);
+    }
+  })();
+
+  // ============================================================
+  //  EFECTO VAHO / CRISTAL EMPAÑADO (poemas secretos o profundos)
+  // ============================================================
+  function initFrostCanvases(){
+    document.querySelectorAll("[data-frost-canvas]").forEach(canvas => {
+      if(canvas.dataset.frostInit === "1") return;
+      canvas.dataset.frostInit = "1";
+      const wrap = canvas.closest(".frost-wrap");
+      const hint = wrap ? wrap.querySelector(".frost-hint") : null;
+
+      function sizeCanvas(){
+        const rect = wrap.getBoundingClientRect();
+        canvas.width = Math.max(1, Math.round(rect.width));
+        canvas.height = Math.max(1, Math.round(rect.height));
+        paintFrost();
+      }
+
+      function paintFrost(){
+        const ctx = canvas.getContext("2d");
+        ctx.globalCompositeOperation = "source-over";
+        const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        grad.addColorStop(0, "rgba(225,228,235,0.94)");
+        grad.addColorStop(1, "rgba(200,204,214,0.9)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+
+      let cleared = 0;
+      let totalArea = 1;
+
+      function wipeAt(x, y){
+        const ctx = canvas.getContext("2d");
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.arc(x, y, 30, 0, Math.PI*2);
+        ctx.fill();
+        cleared++;
+        if(hint && cleared > 4) hint.style.opacity = "0";
+        if(cleared > 40 && hint){ hint.style.display = "none"; }
+      }
+
+      function getPos(e){
+        const rect = canvas.getBoundingClientRect();
+        const cx = e.touches ? e.touches[0].clientX : e.clientX;
+        const cy = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: cx - rect.left, y: cy - rect.top };
+      }
+
+      let painting = false;
+      canvas.addEventListener("pointerdown", (e) => { painting = true; const p = getPos(e); wipeAt(p.x, p.y); });
+      canvas.addEventListener("pointermove", (e) => { if(painting){ const p = getPos(e); wipeAt(p.x, p.y); } });
+      window.addEventListener("pointerup", () => { painting = false; });
+      canvas.addEventListener("touchstart", (e) => { painting = true; const p = getPos(e); wipeAt(p.x, p.y); }, { passive:true });
+      canvas.addEventListener("touchmove", (e) => { if(painting){ const p = getPos(e); wipeAt(p.x, p.y); } }, { passive:true });
+      canvas.addEventListener("touchend", () => { painting = false; });
+
+      sizeCanvas();
+      window.addEventListener("resize", sizeCanvas);
+    });
+  }
+  initFrostCanvases();
 
   // ============================================================
   //  ATMÓSFERAS AMBIENTALES (sonido + partículas)
