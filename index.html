@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>El espejo de las almas</title>
+<title>el espejo de las almas</title>
 <meta name="description" content="una comunidad de poetas anónimos">
 
 <link rel="icon" type="image/jpeg" href="Logo-poetas.jpeg">
@@ -431,6 +431,27 @@
   .comment-toggle:hover{ color:var(--ink); }
   .comment-toggle svg{ width:14px; height:14px; }
 
+  /* ---------- menú "más acciones" del poema (favorito, copiar, compartir, reloj) ---------- */
+  .actions-more-wrap{ position:relative; margin-left:auto; }
+  .actions-more-btn{ padding:7px 10px; }
+  .actions-more-menu{
+    position:absolute; bottom:calc(100% + 8px); right:0;
+    background:var(--bg-panel-raised); border:1px solid var(--hairline); border-radius:12px;
+    box-shadow:var(--shadow-deep); width:220px; overflow:hidden; padding:6px;
+    opacity:0; visibility:hidden; transform:translateY(6px); transition:all 0.2s ease; z-index:30;
+  }
+  .actions-more-menu.show{ opacity:1; visibility:visible; transform:translateY(0); }
+  .actions-more-menu .react-btn{
+    display:flex; width:100%; border:none; padding:10px 10px; border-radius:8px; gap:10px;
+    justify-content:flex-start;
+  }
+  .actions-more-menu .react-btn:hover{ background:var(--lavender-soft); }
+  .actions-more-menu .react-btn-label{ font-size:12.5px; }
+
+  @media (max-width:480px){
+    .reaction-row{ flex-wrap:wrap; row-gap:10px; }
+  }
+
   /* ---------- comments panel ---------- */
   .comments-panel{
     max-height:0; overflow:hidden; opacity:0;
@@ -838,6 +859,25 @@
     opacity:0; visibility:hidden; transform:translateY(-6px); transition:all 0.25s ease; z-index:60;
   }
   .notif-dropdown.show{ opacity:1; visibility:visible; transform:translateY(0); }
+
+  /* ================= MENÚ "MÁS OPCIONES" DE LA NAV ================= */
+  .nav-more-wrap{ position:relative; }
+  .nav-more-menu{
+    position:absolute; top:calc(100% + 10px); right:0;
+    background:var(--bg-panel-raised); border:1px solid var(--hairline); border-radius:14px;
+    box-shadow:var(--shadow-deep); width:250px; overflow:hidden; padding:6px;
+    opacity:0; visibility:hidden; transform:translateY(-6px); transition:all 0.25s ease; z-index:60;
+  }
+  .nav-more-menu.show{ opacity:1; visibility:visible; transform:translateY(0); }
+  .nav-more-item{
+    display:flex; align-items:center; gap:12px; width:100%;
+    background:transparent; border:none; border-radius:9px; cursor:pointer;
+    padding:11px 12px; color:var(--ink-dim); font-family:'Inter', sans-serif; font-size:13px;
+    text-align:left; transition:background 0.2s ease, color 0.2s ease; position:relative;
+  }
+  .nav-more-item:hover{ background:var(--lavender-soft); color:var(--ink); }
+  .nav-more-item svg{ width:16px; height:16px; flex-shrink:0; }
+  .nav-more-item-dot{ position:static; margin-left:auto; }
   .notif-item{
     display:flex; gap:10px; padding:13px 16px; border-bottom:1px solid var(--hairline);
     font-family:'Inter', sans-serif; cursor:default;
@@ -1217,24 +1257,6 @@
   .hourglass-signature.show{ opacity:1; }
   .hourglass-hint{ font-family:'Inter', sans-serif; font-size:11px; color:rgba(242,237,228,0.4); }
 
-  /* ================= PALOMAS DE PAPEL ================= */
-  .paper-crane-clone{
-    position:fixed; margin:0 !important; transform-origin:center center;
-    transition:transform 1.3s cubic-bezier(.5,0,.75,0), opacity 1.1s ease-in 0.2s, filter 0.5s ease;
-    will-change:transform, opacity; pointer-events:none; z-index:250;
-  }
-  .paper-crane-clone::after{
-    content:""; position:absolute; inset:0; opacity:0; pointer-events:none;
-    background:
-      repeating-linear-gradient(115deg, transparent 0 18px, rgba(0,0,0,0.16) 18px 19px, transparent 19px 40px),
-      repeating-linear-gradient(25deg, transparent 0 24px, rgba(255,255,255,0.12) 24px 25px, transparent 25px 50px);
-    transition:opacity 0.4s ease;
-  }
-  .paper-crane-clone.flying{
-    transform:translateY(-140vh) translateX(60px) rotate(22deg) scale(0.5) rotateX(40deg);
-    opacity:0; filter:brightness(1.25) blur(0.3px);
-  }
-  .paper-crane-clone.flying::after{ opacity:1; }
   .verse-toast{
     position:fixed; left:50%; top:26px; transform:translateX(-50%) translateY(-14px);
     background:var(--bg-panel); border:1px solid var(--hairline); border-radius:100px;
@@ -1370,7 +1392,7 @@
 <body>
 
 <nav id="topNav">
-  <div class="nav-logo" id="navLogo">El espejo</div>
+  <div class="nav-logo" id="navLogo">el espejo</div>
 
   <div class="nav-search">
     <input type="text" id="searchInput" placeholder="buscar a un poeta..." autocomplete="off">
@@ -1378,15 +1400,6 @@
   </div>
 
   <div class="nav-right">
-    <button class="theme-toggle-btn" id="btnOpenSoulMap" title="el mapa de las almas">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.6 4.9L19 8l-4.9 1.6L12 15l-1.6-4.9L5 8l4.9-1.1L12 2Z"/><circle cx="19" cy="17" r="1.4" fill="currentColor" stroke="none"/><circle cx="5" cy="18" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="5" r="0.8" fill="currentColor" stroke="none"/></svg>
-    </button>
-    <button class="theme-toggle-btn" id="btnOpenRanking" title="poetas ilustres">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4a1 1 0 0 0-1 1v1a4 4 0 0 0 4 4M17 5h3a1 1 0 0 1 1 1v1a4 4 0 0 1-4 4"/></svg>
-    </button>
-    <button class="theme-toggle-btn" id="btnOpenOracle" title="¿qué necesita escuchar tu alma hoy?">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3.5 0-6 2.7-6 6.2 0 2.6 1.5 4.4 2.7 5.8.7.8 1.3 1.5 1.3 2.3V19h4v-1.7c0-.8.6-1.5 1.3-2.3 1.2-1.4 2.7-3.2 2.7-5.8C18 5.7 15.5 3 12 3Z"/><path d="M10 21h4"/><path d="M12 7v4"/><circle cx="12" cy="9" r="0.6" fill="currentColor" stroke="none"/></svg>
-    </button>
     <div class="notif-bell-wrap">
       <button class="theme-toggle-btn notif-bell-btn" id="notifBellBtn" title="notificaciones">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
@@ -1394,16 +1407,37 @@
       </button>
       <div class="notif-dropdown" id="notifDropdown"></div>
     </div>
-    <div class="notif-bell-wrap">
-      <button class="theme-toggle-btn notif-bell-btn" id="bottleBtn" title="mensaje en una botella">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v5M9 4h6"/><path d="M9 8h6l1.5 3.2a5 5 0 0 1 .5 2.1V19a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-5.7a5 5 0 0 1 .5-2.1L9 8Z"/><path d="M8 15h8"/></svg>
-        <span class="notif-dot" id="bottleDot"></span>
+
+    <div class="nav-more-wrap">
+      <button class="theme-toggle-btn" id="navMoreBtn" title="más opciones">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.4" fill="currentColor" stroke="none"/></svg>
       </button>
+      <div class="nav-more-menu" id="navMoreMenu">
+        <button class="nav-more-item" id="btnOpenSoulMap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l1.6 4.9L19 8l-4.9 1.6L12 15l-1.6-4.9L5 8l4.9-1.1L12 2Z"/><circle cx="19" cy="17" r="1.4" fill="currentColor" stroke="none"/><circle cx="5" cy="18" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="5" r="0.8" fill="currentColor" stroke="none"/></svg>
+          <span>el mapa de las almas</span>
+        </button>
+        <button class="nav-more-item" id="btnOpenRanking">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 0 1-10 0V4Z"/><path d="M7 5H4a1 1 0 0 0-1 1v1a4 4 0 0 0 4 4M17 5h3a1 1 0 0 1 1 1v1a4 4 0 0 1-4 4"/></svg>
+          <span>poetas ilustres</span>
+        </button>
+        <button class="nav-more-item" id="btnOpenOracle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c-3.5 0-6 2.7-6 6.2 0 2.6 1.5 4.4 2.7 5.8.7.8 1.3 1.5 1.3 2.3V19h4v-1.7c0-.8.6-1.5 1.3-2.3 1.2-1.4 2.7-3.2 2.7-5.8C18 5.7 15.5 3 12 3Z"/><path d="M10 21h4"/><path d="M12 7v4"/><circle cx="12" cy="9" r="0.6" fill="currentColor" stroke="none"/></svg>
+          <span>¿qué necesita escuchar tu alma hoy?</span>
+        </button>
+        <button class="nav-more-item" id="bottleBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v5M9 4h6"/><path d="M9 8h6l1.5 3.2a5 5 0 0 1 .5 2.1V19a2 2 0 0 1-2 2h-6a2 2 0 0 1-2-2v-5.7a5 5 0 0 1 .5-2.1L9 8Z"/><path d="M8 15h8"/></svg>
+          <span>mensaje en una botella</span>
+          <span class="notif-dot nav-more-item-dot" id="bottleDot"></span>
+        </button>
+        <button class="nav-more-item" id="themeToggleBtn">
+          <svg id="themeToggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>
+          <span>cambiar tema</span>
+        </button>
+      </div>
       <div class="notif-dropdown" id="bottleDropdown"></div>
     </div>
-    <button class="theme-toggle-btn" id="themeToggleBtn" title="cambiar tema">
-      <svg id="themeToggleIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>
-    </button>
+
     <div class="nav-auth" id="navAuth">
       <button class="btn-login" id="btnOpenLogin">iniciar sesión</button>
     </div>
@@ -2227,6 +2261,21 @@ async function searchSpotifyTrack(queryText) {
     }
   });
   document.addEventListener("click", () => notifDropdown.classList.remove("show"));
+
+  // ============================================================
+  //  MENÚ "MÁS OPCIONES" DE LA NAV (mapa de almas, ranking, oráculo, botella, tema)
+  // ============================================================
+  const navMoreBtn = document.getElementById("navMoreBtn");
+  const navMoreMenu = document.getElementById("navMoreMenu");
+  navMoreBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    navMoreMenu.classList.toggle("show");
+  });
+  navMoreMenu.addEventListener("click", (e) => {
+    // cerrar el menú al elegir cualquier opción, salvo que sea el propio interruptor de tema
+    navMoreMenu.classList.remove("show");
+  });
+  document.addEventListener("click", () => navMoreMenu.classList.remove("show"));
 
   // ============================================================
   //  NAVEGACIÓN ENTRE VISTAS
@@ -3114,25 +3163,33 @@ async function searchSpotifyTrack(queryText) {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 21s7.5-4.6 10-9.3C23.5 8.4 21.7 5 18.3 5c-1.9 0-3.5 1-4.3 2.5C13.2 6 11.6 5 9.7 5 6.3 5 4.5 8.4 6 11.7 4.5 16.4 12 21 12 21Z"/></svg>
             ${dislikeCount}
           </button>
-          <button class="react-btn ${isFavorited ? "active-fav" : ""}" data-action="toggle-favorite" data-id="${poem.id}" title="guardar en mi libreta de versos">
-            <svg viewBox="0 0 24 24" fill="${isFavorited ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L12 16.9 6.4 20.1l1.4-6.3-4.8-4.3 6.4-.6L12 3Z"/></svg>
-          </button>
-          <button class="react-btn" data-action="copy-poem" data-id="${poem.id}" title="copiar / compartir">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          </button>
-          <button class="react-btn postcard-share-btn" data-action="share-image" data-id="${poem.id}" title="compartir como imagen">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 16l-4.5-4.5a2 2 0 0 0-2.8 0L9 16"/></svg>
-          </button>
-          <button class="react-btn hourglass-trigger-btn" data-action="hourglass" data-id="${poem.id}" title="llenar el reloj — leer a cámara lenta">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 21h12"/><path d="M7 3c0 4.2 3 6.3 5 8-2 1.7-5 3.8-5 8M17 3c0 4.2-3 6.3-5 8 2 1.7 5 3.8 5 8"/></svg>
-          </button>
-          <button class="react-btn paper-crane-trigger-btn" data-action="paper-crane" data-id="${poem.id}" title="lanzar al aire">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12l20-9-9 20-2-8-8-3Z"/></svg>
-          </button>
           <button class="comment-toggle" data-action="toggle-comments" data-id="${poem.id}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.5 9 9 0 0 1-3.5-.7L3 21l1.8-5a8.4 8.4 0 0 1-.8-3.5A8.4 8.4 0 0 1 12.9 3 8.5 8.5 0 0 1 21 11.5Z"/></svg>
             ${comments.length}
           </button>
+          <div class="actions-more-wrap">
+            <button class="react-btn actions-more-btn" data-action="toggle-more-actions" data-id="${poem.id}" title="más acciones">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="5" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg>
+            </button>
+            <div class="actions-more-menu" data-more-menu="${poem.id}">
+              <button class="react-btn ${isFavorited ? "active-fav" : ""}" data-action="toggle-favorite" data-id="${poem.id}">
+                <svg viewBox="0 0 24 24" fill="${isFavorited ? "currentColor" : "none"}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.6 5.9 6.4.6-4.8 4.3 1.4 6.3L12 16.9 6.4 20.1l1.4-6.3-4.8-4.3 6.4-.6L12 3Z"/></svg>
+                <span class="react-btn-label">${isFavorited ? "guardado en tu libreta" : "guardar en tu libreta de versos"}</span>
+              </button>
+              <button class="react-btn" data-action="copy-poem" data-id="${poem.id}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span class="react-btn-label">copiar / compartir</span>
+              </button>
+              <button class="react-btn postcard-share-btn" data-action="share-image" data-id="${poem.id}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 16l-4.5-4.5a2 2 0 0 0-2.8 0L9 16"/></svg>
+                <span class="react-btn-label">compartir como imagen</span>
+              </button>
+              <button class="react-btn hourglass-trigger-btn" data-action="hourglass" data-id="${poem.id}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12M6 21h12"/><path d="M7 3c0 4.2 3 6.3 5 8-2 1.7-5 3.8-5 8M17 3c0 4.2-3 6.3-5 8 2 1.7 5 3.8 5 8"/></svg>
+                <span class="react-btn-label">llenar el reloj — leer a cámara lenta</span>
+              </button>
+            </div>
+          </div>
         </div>
         <div class="comments-panel ${isExpanded ? "expanded" : ""}" data-comments-for="${poem.id}">
           <div class="comments-inner">
@@ -3164,6 +3221,11 @@ async function searchSpotifyTrack(queryText) {
     }
     return getFeaturedPoemId._randomId;
   }
+
+  function closeAllMoreActionsMenus(){
+    document.querySelectorAll(".actions-more-menu.show").forEach(m => m.classList.remove("show"));
+  }
+  document.addEventListener("click", closeAllMoreActionsMenus);
 
   function renderWallFilterBar(){
     const bar = document.getElementById("wallFilterBar");
@@ -3241,14 +3303,23 @@ async function searchSpotifyTrack(queryText) {
       const authorRow = e.target.closest('[data-action="open-author"]');
       const deleteBtn = e.target.closest('[data-action="delete-poem"]');
       const hourglassBtn = e.target.closest('[data-action="hourglass"]');
-      const paperCraneBtn = e.target.closest('[data-action="paper-crane"]');
       const waxSealBtn = e.target.closest('[data-action="wax-seal"]');
+      const moreActionsBtn = e.target.closest('[data-action="toggle-more-actions"]');
 
       if(likeBtn) toggleReaction(likeBtn.dataset.id, "like");
       if(dislikeBtn) toggleReaction(dislikeBtn.dataset.id, "dislike");
-      if(favBtn) toggleFavorite(favBtn.dataset.id);
-      if(copyBtn) copyPoemFormatted(copyBtn.dataset.id);
-      if(shareImageBtn) sharePoemAsImage(shareImageBtn.dataset.id);
+      if(favBtn){ toggleFavorite(favBtn.dataset.id); closeAllMoreActionsMenus(); }
+      if(copyBtn){ copyPoemFormatted(copyBtn.dataset.id); closeAllMoreActionsMenus(); }
+      if(shareImageBtn){ sharePoemAsImage(shareImageBtn.dataset.id); closeAllMoreActionsMenus(); }
+
+      if(moreActionsBtn){
+        e.stopPropagation();
+        const id = moreActionsBtn.dataset.id;
+        const menu = container.querySelector(`[data-more-menu="${id}"]`);
+        const willShow = menu && !menu.classList.contains("show");
+        closeAllMoreActionsMenus();
+        if(willShow) menu.classList.add("show");
+      }
 
       if(editBtn){
         const id = editBtn.dataset.id;
@@ -3303,8 +3374,7 @@ async function searchSpotifyTrack(queryText) {
         openUserProfile(uid);
       }
 
-      if(hourglassBtn) openHourglass(hourglassBtn.dataset.id);
-      if(paperCraneBtn) launchPaperCrane(paperCraneBtn.dataset.id, container);
+      if(hourglassBtn){ openHourglass(hourglassBtn.dataset.id); closeAllMoreActionsMenus(); }
       if(waxSealBtn) stampWaxSeal(waxSealBtn.dataset.id, waxSealBtn);
     });
 
@@ -3735,6 +3805,7 @@ async function searchSpotifyTrack(queryText) {
 
   bottleBtn.addEventListener("click", (e) => {
     e.stopPropagation();
+    document.getElementById("navMoreMenu").classList.remove("show");
     if(!currentUser){ openLoginModal(); return; }
     const willShow = !bottleDropdown.classList.contains("show");
     bottleDropdown.classList.toggle("show", willShow);
@@ -4715,38 +4786,58 @@ async function searchSpotifyTrack(queryText) {
     const signatureEl = document.getElementById("oracleVerseSignature");
     const closeBtn = document.getElementById("oracleCloseBtn");
 
+    // Mensajes propios del espejo: no se extraen de los poemas de nadie,
+    // se generan aquí mismo, como si el espejo hablara directamente contigo.
+    const ORACLE_MESSAGES = [
+      "hoy no necesitas tener todas las respuestas. basta con seguir respirando despacio.",
+      "lo que sientes no te hace débil, te hace real. date permiso de sentirlo entero.",
+      "no todo lo que duele hay que resolverlo hoy. algunas heridas solo piden compañía.",
+      "estás permitido a descansar, incluso de las cosas que amas.",
+      "el silencio también es una forma de hablarte a ti mismo. escúchalo un momento.",
+      "no llegaste tarde a nada. tu tiempo no se mide con el reloj de los demás.",
+      "hay una parte de ti que ya sabe el camino. confía un poco más en ella hoy.",
+      "no tienes que sanar en línea recta. los pasos hacia atrás también cuentan.",
+      "eres más que el peor momento que estás atravesando ahora mismo.",
+      "está bien pedir ayuda. nadie cruza el invierno completamente solo.",
+      "tu historia no termina en el capítulo que más duele.",
+      "no necesitas justificar tu cansancio para merecer descanso.",
+      "algo en ti sigue floreciendo, aunque hoy no puedas verlo.",
+      "no eres responsable de cargar lo que otros no supieron soltar.",
+      "cada vez que vuelves a intentarlo, ya estás ganando algo.",
+      "no pasa nada si hoy solo sobrevives. mañana puedes volver a vivir.",
+      "el amor que buscas afuera también empieza a construirse adentro.",
+      "no todas las despedidas son abandono. algunas son espacio para crecer.",
+      "tu voz importa, aunque a veces sientas que nadie la escucha.",
+      "date el mismo consuelo que le darías a alguien que quieres.",
+      "no tienes que tenerlo todo claro para seguir caminando.",
+      "el miedo que sientes no significa que vayas por mal camino.",
+      "eres digno de ternura, incluso en tus días más ásperos.",
+      "no estás roto, estás en proceso, que es distinto.",
+      "puedes soltar hoy lo que ya no te deja avanzar.",
+      "tu sensibilidad no es un defecto, es una forma de ver el mundo más de cerca.",
+      "está bien no estar bien todo el tiempo. no eres una excepción, eres humano.",
+      "lo que hoy pesa, no pesará para siempre.",
+      "no necesitas ser perfecto para ser amado.",
+      "confía: incluso lo que hoy no entiendes te está formando."
+    ];
+
     function pickOracleVerse(){
-      const allPoems = Object.values(poemsCache).filter(p => p && p.content && p.content.trim());
-      if(allPoems.length === 0) return null;
-      const poem = allPoems[Math.floor(Math.random() * allPoems.length)];
-      const stanzas = poem.content.split(/\n\s*\n/).map(s => s.trim()).filter(Boolean);
-      const stanza = stanzas.length ? stanzas[Math.floor(Math.random() * stanzas.length)] : poem.content.trim();
-      const authorUser = usersCache[poem.authorUid];
-      const signature = poem.pseudonym
-        ? (poem.authorName || "un alma enigmática")
-        : ((authorUser && authorUser.name) || poem.authorName || "anónimo");
-      return { stanza, signature };
+      const idx = Math.floor(Math.random() * ORACLE_MESSAGES.length);
+      return { stanza: ORACLE_MESSAGES[idx] };
     }
 
     function openOracle(){
       const pick = pickOracleVerse();
       overlay.classList.add("show");
-      if(!pick){
-        verseEl.textContent = "el espejo aún está en silencio... vuelve cuando existan versos por descubrir.";
-        signatureEl.textContent = "";
-      }else{
-        verseEl.textContent = "";
-        signatureEl.textContent = "";
-      }
+      verseEl.textContent = "";
+      signatureEl.textContent = "";
       overlay.classList.remove("shine");
       // fuerza reflow para reiniciar la animación de brillo
       void overlay.offsetWidth;
       overlay.classList.add("shine");
       setTimeout(() => {
-        if(pick){
-          verseEl.textContent = "“" + pick.stanza + "”";
-          signatureEl.textContent = "— " + pick.signature;
-        }
+        verseEl.textContent = pick.stanza;
+        signatureEl.textContent = "— el espejo";
       }, 550);
     }
 
@@ -4765,31 +4856,44 @@ async function searchSpotifyTrack(queryText) {
   let hourglassTypeTimer = null;
   let hourglassFullText = "";
   let hourglassRevealIndex = 0;
-  let hourglassAudioCtx = null;
 
-  function ensureHourglassAudio(){
-    if(!hourglassAudioCtx) hourglassAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if(hourglassAudioCtx.state === "suspended") hourglassAudioCtx.resume();
-    return hourglassAudioCtx;
+  // ------------------------------------------------------------
+  // SONIDO DEL RELOJ DE ARENA
+  // ------------------------------------------------------------
+  // Sube tu propio archivo de sonido (mp3/ogg/wav, un "click" corto de
+  // tecla) al mismo lugar donde está este index.html, dentro de una
+  // carpeta llamada "sounds", con el nombre "tecla.mp3".
+  // Ruta esperada: sounds/tecla.mp3
+  // Si el archivo no existe o el navegador no puede reproducirlo,
+  // el reloj funciona igual pero sin sonido (no se rompe nada).
+  const HOURGLASS_SOUND_SRC = "sounds/tecla.mp3";
+  const HOURGLASS_SOUND_POOL_SIZE = 6; // varios <audio> para poder solaparlos al escribir rápido
+  let hourglassSoundPool = [];
+  let hourglassSoundIndex = 0;
+  let hourglassSoundAvailable = true;
+
+  function ensureHourglassSoundPool(){
+    if(hourglassSoundPool.length || !hourglassSoundAvailable) return;
+    for(let i = 0; i < HOURGLASS_SOUND_POOL_SIZE; i++){
+      const audio = new Audio(HOURGLASS_SOUND_SRC);
+      audio.preload = "auto";
+      audio.volume = 0.5;
+      audio.addEventListener("error", () => { hourglassSoundAvailable = false; }, { once:true });
+      hourglassSoundPool.push(audio);
+    }
   }
 
   function playTypewriterClick(){
+    if(!hourglassSoundAvailable) return;
+    ensureHourglassSoundPool();
+    if(!hourglassSoundAvailable || !hourglassSoundPool.length) return;
     try{
-      const ctx = ensureHourglassAudio();
-      const bufferSize = Math.floor(ctx.sampleRate * 0.025);
-      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data = buffer.getChannelData(0);
-      for(let i=0;i<bufferSize;i++) data[i] = (Math.random()*2-1) * (1 - i/bufferSize);
-      const src = ctx.createBufferSource();
-      src.buffer = buffer;
-      const filter = ctx.createBiquadFilter();
-      filter.type = "highpass";
-      filter.frequency.value = 2000 + Math.random()*900;
-      const gain = ctx.createGain();
-      gain.gain.value = 0.16;
-      src.connect(filter); filter.connect(gain); gain.connect(ctx.destination);
-      src.start();
-    }catch(err){ /* silencioso si el navegador bloquea audio sin interacción previa */ }
+      const audio = hourglassSoundPool[hourglassSoundIndex];
+      hourglassSoundIndex = (hourglassSoundIndex + 1) % hourglassSoundPool.length;
+      audio.currentTime = 0;
+      const playPromise = audio.play();
+      if(playPromise && playPromise.catch) playPromise.catch(() => { /* el navegador bloqueó el audio sin interacción previa, no pasa nada */ });
+    }catch(err){ /* silencioso: si algo falla, el reloj sigue funcionando sin sonido */ }
   }
 
   function hourglassTypeStep(){
@@ -4849,9 +4953,6 @@ async function searchSpotifyTrack(queryText) {
     hourglassRevealInstantly();
   });
 
-  // ============================================================
-  //  PALOMAS DE PAPEL (compartir liberando el poema al aire)
-  // ============================================================
   function showVerseToast(text){
     let toast = document.getElementById("verseToast");
     if(!toast){
@@ -4864,33 +4965,6 @@ async function searchSpotifyTrack(queryText) {
     toast.classList.add("show");
     clearTimeout(showVerseToast._t);
     showVerseToast._t = setTimeout(() => toast.classList.remove("show"), 2600);
-  }
-
-  function launchPaperCrane(poemId, scopeEl){
-    const scope = scopeEl || document;
-    const card = scope.querySelector(`[data-poem-id="${poemId}"]`);
-    if(!card || card.classList.contains("is-flying")) return;
-    const rect = card.getBoundingClientRect();
-    const clone = card.cloneNode(true);
-    clone.classList.add("paper-crane-clone");
-    clone.style.top = rect.top + "px";
-    clone.style.left = rect.left + "px";
-    clone.style.width = rect.width + "px";
-    document.body.appendChild(clone);
-    card.classList.add("is-flying");
-    card.style.visibility = "hidden";
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => clone.classList.add("flying"));
-    });
-
-    setTimeout(() => {
-      clone.remove();
-      card.style.visibility = "visible";
-      card.classList.remove("is-flying");
-      copyPoemFormatted(poemId);
-      showVerseToast("tu verso ha volado libre por el cielo ✦ (también se copió para compartir)");
-    }, 1350);
   }
 
   // ============================================================
